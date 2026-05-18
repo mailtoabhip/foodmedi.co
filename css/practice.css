@@ -1,0 +1,26 @@
+/* ── In Practice (alternating image+text) ───────────────────────────── */
+.practice { background: var(--canvas); }
+
+.pr-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(30px, 5vw, 80px);
+  align-items: center;
+  margin-bottom: clamp(60px, 8vw, 120px);
+}
+.pr-block:last-child { margin-bottom: 0; }
+.pr-block.reverse { direction: rtl; }
+.pr-block.reverse > * { direction: ltr; }
+@media (max-width: 820px) {
+  .pr-block, .pr-block.reverse { grid-template-columns: 1fr; direction: ltr; }
+}
+
+.pr-vis { aspect-ratio: 4/5; border-radius: var(--radius-2xl); box-shadow: var(--shadow-lift); }
+.pr-vis.wide { aspect-ratio: 5/4; }
+
+.pr-block h2 { font-size: clamp(28px, 3.6vw, 44px); }
+.pr-block p { margin-top: 18px; font-size: 16.5px; max-width: 480px; }
+
+.pr-block .tiny-list { margin-top: 28px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.pr-block .tiny-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; color: var(--ink-2); }
+.pr-block .tiny-list svg { flex-shrink: 0; margin-top: 3px; color: var(--emerald); }

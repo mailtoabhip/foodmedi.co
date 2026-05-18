@@ -1,0 +1,136 @@
+/* ── Hero ───────────────────────────────────────────────────────────── */
+.hero {
+  padding-top: clamp(60px, 8vw, 100px);
+  padding-bottom: clamp(80px, 9vw, 130px);
+  position: relative;
+  overflow: clip;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: clamp(40px, 5vw, 80px);
+  align-items: center;
+}
+@media (max-width: 920px) { .hero-grid { grid-template-columns: 1fr; } }
+
+.hero h1 .ital { font-style: italic; color: var(--emerald-deep); font-weight: 500; }
+
+.hero .lede {
+  max-width: 520px;
+  color: var(--ink-2);
+  font-size: 18px;
+  line-height: 1.65;
+  margin-top: 28px;
+}
+.hero .lede strong { color: var(--ink); font-weight: 600; }
+
+.hero .cta-row { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
+
+/* Signature block */
+.signature {
+  margin-top: 56px;
+  display: flex; align-items: center; gap: 16px;
+  color: var(--ink-3); font-size: 13px;
+}
+.signature .avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--emerald-soft), var(--cream));
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid; place-items: center;
+  color: var(--emerald-deep);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+}
+.signature b { display: block; color: var(--ink); font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+
+/* Hero visual */
+.hero-vis-wrap { position: relative; }
+.hero-vis {
+  position: relative;
+  aspect-ratio: 4/5;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lift);
+}
+.hero-vis-wrap .badge { z-index: 5; }
+
+/* Organic blobs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(28px);
+  opacity: .55;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob.a { width: 260px; height: 260px; background: #BFD3B7; top: 12%; left: -8%; }
+.blob.b { width: 200px; height: 200px; background: #E3D9C1; bottom: 8%; right: -6%; }
+.hero .wrap { position: relative; z-index: 1; }
+
+/* Floating badges */
+.badge {
+  position: absolute;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 16px 10px 14px;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 600;
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+  white-space: nowrap;
+}
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 0 4px rgba(19,122,72,.15); }
+.badge .num { color: var(--emerald-deep); font-family: 'Playfair Display', Georgia, serif; font-size: 16px; }
+
+.badge.b1 { top: 8%; left: -18px; }
+.badge.b2 { top: 44%; right: -22px; }
+.badge.b3 { bottom: 9%; left: -10px; }
+@media (max-width: 920px) {
+  .badge.b1 { left: 10px; }
+  .badge.b2 { right: 10px; }
+  .badge.b3 { left: 20px; }
+}
+
+/* Stats strip */
+.hero-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: clamp(60px, 8vw, 100px);
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.hero-stats > div { padding: 6px 24px; border-right: 1px solid var(--line); }
+.hero-stats > div:last-child { border-right: 0; }
+.hero-stats .k { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 3.6vw, 44px); color: var(--ink); display: block; line-height: 1; }
+.hero-stats .v { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); margin-top: 10px; display: block; }
+
+/* Specialty badge */
+.specialty-badge {
+  margin-top: 28px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px 16px 18px;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--emerald);
+  border-radius: 14px;
+  max-width: 520px;
+}
+.specialty-badge .sb-ico {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--emerald-soft);
+  color: var(--emerald-deep);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.specialty-badge .sb-text { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.specialty-badge .sb-text b { color: var(--ink); display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-weight: 500; margin-bottom: 4px; color: var(--emerald-deep); }

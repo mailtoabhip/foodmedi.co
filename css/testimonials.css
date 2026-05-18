@@ -1,0 +1,48 @@
+/* ── Testimonials ───────────────────────────────────────────────────── */
+.testimonials { background: var(--canvas); padding-top: clamp(80px, 11vw, 160px); }
+.test-head { text-align: center; max-width: 720px; margin-inline: auto; }
+.test-head p { margin-top: 18px; color: var(--ink-2); font-size: 17px; }
+
+.marquee {
+  margin-top: 64px;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 22px;
+  width: max-content;
+  animation: scroll 60s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+.quote {
+  width: 380px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 30px 30px 26px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 1px 0 rgba(14,95,56,.02);
+}
+.quote .mark { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; line-height: 0.6; color: var(--emerald); margin-bottom: 12px; }
+.quote p { font-size: 15.5px; line-height: 1.6; color: var(--ink-2); flex: 1; }
+.quote p b { color: var(--ink); font-weight: 600; background: linear-gradient(180deg, transparent 60%, #DDEEDE 60%); padding: 0 2px; }
+
+.quote .who {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 24px; padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.quote .who .av {
+  width: 44px; height: 44px; border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  position: relative;
+}
+.quote .who b { font-size: 14px; color: var(--ink); font-weight: 600; display: block; }
+.quote .who small { font-size: 12px; color: var(--ink-3); display: block; margin-top: 2px; }
+.quote .heart { margin-left: auto; color: var(--crimson); font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }

@@ -1,0 +1,12 @@
+/* ── Layout ─────────────────────────────────────────────────────────── */
+.wrap {
+  width: min(1240px, 100% - var(--gutter) * 2);
+  margin-inline: auto;
+}
+
+section {
+  padding-block: clamp(80px, 11vw, 160px);
+  position: relative;
+}
+
+section > .wrap { position: relative; z-index: 1; }

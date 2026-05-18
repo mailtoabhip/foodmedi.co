@@ -1,0 +1,51 @@
+/* ── Image placeholder system ───────────────────────────────────────── */
+.img-ph {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #E8EFE5 0%, #DCE6D7 65%, #C9D7C2 100%);
+  border-radius: var(--radius-xl);
+  isolation: isolate;
+}
+.img-ph .ph-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
+
+/* Hide placeholder chrome when showing a real photo */
+.img-ph.has-photo::before { display: none; }
+.img-ph.has-photo .ph-art,
+.img-ph.has-photo .ph-corner,
+.img-ph.has-photo .reg { display: none; }
+.img-ph.has-photo .ph-tag { display: none; }
+
+.img-ph::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.0) 0 14px, rgba(255,255,255,.18) 14px 15px);
+  mix-blend-mode: soft-light;
+  z-index: 1;
+}
+
+/* Colour variants */
+.img-ph.warm  { background: linear-gradient(160deg, #F4EFE3 0%, #E9DFCB 60%, #D9C9A8 100%); }
+.img-ph.deep  { background: linear-gradient(160deg, #2E4A36 0%, #1D3624 100%); }
+.img-ph.cream { background: linear-gradient(160deg, #F0E8D8 0%, #E2D4B8 60%, #C9B68B 100%); }
+.img-ph.sage  { background: linear-gradient(160deg, #DCE6D2 0%, #BFD0B0 100%); }
+
+.img-ph .ph-tag {
+  position: absolute; left: 14px; bottom: 14px; z-index: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-2);
+  background: rgba(250,250,248,.72);
+  backdrop-filter: blur(6px);
+  padding: 6px 10px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.5);
+  pointer-events: none;
+}
+.img-ph .ph-corner { position: absolute; right: 14px; top: 14px; z-index: 2; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: rgba(10,38,21,.4); letter-spacing: .12em; pointer-events: none; }
+.img-ph .reg { position: absolute; width: 16px; height: 16px; z-index: 2; pointer-events: none; border-color: rgba(10,38,21,.18); }
+.img-ph .reg.tl { top: 14px; left: 14px; border-top: 1px solid; border-left: 1px solid; }
+.img-ph .reg.tr { top: 14px; right: 14px; border-top: 1px solid; border-right: 1px solid; }
+.img-ph .reg.bl { bottom: 14px; left: 14px; border-bottom: 1px solid; border-left: 1px solid; }
+.img-ph .reg.br { bottom: 14px; right: 14px; border-bottom: 1px solid; border-right: 1px solid; }
+.img-ph .ph-art { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: rgba(10,38,21,.18); }
+.img-ph .ph-art svg { width: 38%; max-width: 180px; }
+.img-ph.deep .ph-art { color: rgba(255,255,255,.22); }

@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FoodMedi.Co — Clinical nutrition guidance by Gauri Pillai, M.Sc. Clinical Nutrition, Tata Cancer Hospital. Evidence-based, personalized nutrition plans." />
+  <title>FoodMedi.Co — Clinical Nutrition by Gauri Pillai</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Design tokens & base -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/images.css" />
+
+  <!-- Components -->
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/hero.css" />
+  <link rel="stylesheet" href="css/credentials.css" />
+  <link rel="stylesheet" href="css/about.css" />
+  <link rel="stylesheet" href="css/services.css" />
+  <link rel="stylesheet" href="css/practice.css" />
+  <link rel="stylesheet" href="css/gallery.css" />
+  <link rel="stylesheet" href="css/testimonials.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="css/drawer.css" />
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════════════════════════════ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo" aria-label="FoodMedi.Co by Gauri">
+      <span class="logo-mark" aria-hidden="true">
+        <img src="assets/logo.png" alt="" style="object-fit:contain;width:42px;height:54px;" />
+      </span>
+      <span class="logo-text">
+        <span class="name">FoodMedi<span style="color:var(--crimson)">.</span>Co</span>
+        <span class="by">by <em>Gauri</em></span>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#testimonials">What Clients Say</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <a href="#services" class="btn">
+      Book Now
+      <svg class="arr" width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</header>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+
+      <!-- Left: copy -->
+      <div>
+        <span class="eyebrow reveal">Clinical Dietitian · Mumbai</span>
+        <h1 class="reveal d1" style="margin-top:22px">
+          Transform your health<br />
+          through the <span class="ital"><em>power of</em> nutrition.</span>
+        </h1>
+        <p class="lede reveal d2">
+          I'm <strong>Gauri Pillai</strong> &mdash; a clinical dietitian practicing at Tata Cancer Hospital. After guiding hundreds through metabolic and lifestyle conditions, I'm here to help you transform your health, one sustainable step at a time. <strong>No crash diets. No quick fixes.</strong>
+        </p>
+
+        <div class="specialty-badge reveal d3">
+          <div class="sb-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="sb-text">
+            <b>Medical Expertise</b>
+            Specializing in <strong style="color:var(--ink);font-weight:600;">Oncology &amp; Clinical Nutrition</strong> &mdash; coordinated care alongside your treating oncologist at Tata Cancer Hospital.
+          </div>
+        </div>
+
+        <div class="cta-row reveal d3">
+          <a href="#services" class="btn">
+            Book Now
+            <svg class="arr" width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#services" class="btn btn-ghost">Explore Services</a>
+        </div>
+
+        <div class="signature reveal d4">
+          <div class="avatar">GP</div>
+          <div>
+            <b>Gauri Pillai, M.Sc. Clinical Nutrition</b>
+            Registered Dietitian · Tata Cancer Hospital
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: portrait -->
+      <div class="hero-vis-wrap reveal d2" aria-hidden="true">
+        <div class="hero-vis img-ph has-photo">
+          <img class="ph-photo" src="assets/portrait-coat.jpg" alt="Gauri Pillai, Clinical Dietitian" />
+        </div>
+        <div class="badge b1"><span class="dot"></span> Qualified Dietitian</div>
+        <div class="badge b2"><span class="num">3+</span> Years Experience</div>
+        <div class="badge b3"><span class="num">1,000+</span> Lives Impacted</div>
+      </div>
+
+    </div><!-- /hero-grid -->
+
+    <!-- Stats strip -->
+    <div class="hero-stats reveal">
+      <div>
+        <span class="k">1,000<span style="color:var(--emerald);">+</span></span>
+        <span class="v">Clients Guided</span>
+      </div>
+      <div>
+        <span class="k">97<span style="color:var(--emerald);">%</span></span>
+        <span class="v">Sustained Outcomes</span>
+      </div>
+      <div>
+        <span class="k">4.9<span style="color:var(--emerald);">/5</span></span>
+        <span class="v">Average Rating</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     CREDENTIALS STRIP
+════════════════════════════════════════════════════════════════════ -->
+<section class="creds" style="padding-top:0;">
+  <div class="wrap">
+    <div class="creds-label reveal">Practicing · Affiliated · Recognized</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:36px;max-width:980px;margin-inline:auto;">
+
+      <div class="cred-icon-card reveal">
+        <div class="ci-ico">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21V10l9-6 9 6v11" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M12 8v4M10 10h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <b>Tata Cancer Hospital</b>
+        <span>Practicing Clinical Dietitian</span>
+      </div>
+
+      <div class="cred-icon-card reveal d1">
+        <div class="ci-ico">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M2 9l10-5 10 5-10 5L2 9z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M6 11v5c0 1 3 2 6 2s6-1 6-2v-5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M22 9v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <b>M.Sc Clinical Nutrition</b>
+        <span>SNDT University, Mumbai</span>
+      </div>
+
+      <div class="cred-icon-card reveal d2">
+        <div class="ci-ico">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M5 11a7 7 0 0014 0M12 18v3M8 21h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <b>ICNC 2026 · Speaker</b>
+        <span>Indian Congress of Nutrition &amp; Cancer</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════════════════════════════════ -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="about-head">
+      <div>
+        <span class="eyebrow reveal">The Approach</span>
+        <h2 class="reveal d1" style="margin-top:22px">
+          I help you prioritize <em style="color:var(--emerald-deep)">nutrition</em><br/>for optimal health.
+        </h2>
+        <p class="reveal d2" style="margin-top:28px;max-width:480px;font-size:16.5px;">
+          Discover the key to vibrant living with guidance designed to nourish your body, strengthen your metabolism, and elevate your well-being &mdash; rooted in evidence, never in trends.
+        </p>
+      </div>
+      <div class="img-ph sage has-photo reveal d2" style="aspect-ratio:4/5;border-radius:var(--radius-2xl);box-shadow:var(--shadow-soft);">
+        <img class="ph-photo" src="assets/portrait-hero.jpg" alt="Gauri Pillai at the clinic" />
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature reveal">
+        <span class="idx">/ 01</span>
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 3l8.5 4v6c0 5-3.6 9.4-8.5 10.5C7.1 22.4 3.5 18 3.5 13V7L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Evidence-Based Practice</h3>
+        <p>Every plan is grounded in peer-reviewed clinical research and the latest dietetic guidelines &mdash; no fads, no guesswork.</p>
+      </div>
+
+      <div class="feature reveal d1">
+        <span class="idx">/ 02</span>
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M5 21c.7-3.6 3.4-6 7-6s6.3 2.4 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Personalized Guidance</h3>
+        <p>Plans are tailored to your medical history, food culture, daily rhythm and metabolic markers &mdash; not a template.</p>
+      </div>
+
+      <div class="feature reveal d2">
+        <span class="idx">/ 03</span>
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Always On-Time Consultations</h3>
+        <p>Your time matters. Sessions begin exactly when scheduled and are structured so you leave with clear next steps.</p>
+      </div>
+
+      <div class="feature reveal d3">
+        <span class="idx">/ 04</span>
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8 12h.01M12 12h.01M16 12h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M21 12c0 4.4-4 8-9 8-1.5 0-2.9-.3-4.2-.9L3 21l1.4-4.4C3.5 15.2 3 13.6 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Dedicated Support</h3>
+        <p>Follow-ups, check-ins, and answers to your questions between sessions &mdash; the way real change actually happens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SERVICES
+════════════════════════════════════════════════════════════════════ -->
+<section id="services">
+  <div class="wrap">
+    <div class="services-head">
+      <div>
+        <span class="eyebrow reveal">Services</span>
+        <h2 class="reveal d1" style="margin-top:22px;max-width:14ch;">A care path for every kind of <em style="color:var(--emerald-deep)">change.</em></h2>
+      </div>
+      <p class="lede reveal d2">From one-on-one clinical work to corporate wellness, every engagement begins with a thorough assessment and ends with a roadmap you can actually live by.</p>
+    </div>
+
+    <!-- Currency toggle -->
+    <div class="toggle-wrap reveal">
+      <span class="label">View pricing in</span>
+      <div class="currency-toggle lg" id="svcCurrencyToggle" role="radiogroup" aria-label="Currency">
+        <span class="slider"></span>
+        <button type="button" data-currency="INR" class="active" role="radio" aria-checked="true">
+          <span class="flag in"></span>India · ₹
+        </button>
+        <button type="button" data-currency="USD" role="radio" aria-checked="false">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+          International · $
+        </button>
+      </div>
+    </div>
+
+    <!-- Service cards — populated by JS -->
+    <div class="svc-grid" id="svcGrid"></div>
+
+    <!-- FAQ Accordion -->
+    <div class="accordion reveal">
+      <div class="acc-item open">
+        <button class="acc-q">
+          What conditions do you typically work with?
+          <span class="plus">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="acc-a">
+          <div class="inner">
+            Diabetes, PCOS, thyroid disorders, oncology nutrition, post-treatment recovery, gut health, weight management and metabolic syndrome &mdash; with a deep focus on sustainable change rather than restrictive diets.
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q">
+          How are consultations structured?
+          <span class="plus">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="acc-a">
+          <div class="inner">
+            A 30-minute video assessment followed by a written roadmap delivered within 48 hours, plus 14 days of asynchronous follow-up for questions and refinements.
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q">
+          Do you offer in-person sessions?
+          <span class="plus">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="acc-a">
+          <div class="inner">
+            Yes &mdash; in-person consultations are available in Mumbai by appointment. Most clients begin virtually and add an in-person session if their care plan benefits from it.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     IN PRACTICE (alternating image + text)
+════════════════════════════════════════════════════════════════════ -->
+<section class="practice">
+  <div class="wrap">
+    <div style="text-align:center;max-width:720px;margin:0 auto clamp(60px,8vw,100px);">
+      <span class="eyebrow reveal">In Practice</span>
+      <h2 class="reveal d1" style="margin-top:22px">How the work actually <em style="color:var(--emerald-deep)">unfolds.</em></h2>
+    </div>
+
+    <!-- 01 Assessment -->
+    <div class="pr-block">
+      <div class="img-ph cream pr-vis reveal has-photo">
+        <img class="ph-photo" src="assets/food-prep.jpg" alt="Whole-food assessment" />
+      </div>
+      <div class="reveal d1">
+        <span class="eyebrow">01 · Assessment</span>
+        <h2 style="margin-top:20px;">We begin where your body actually <em style="color:var(--emerald-deep)">is.</em></h2>
+        <p>A 30-minute consultation reviewing biomarkers, sleep, stress, gut health, family history and what your week actually looks like &mdash; no judgement, no assumptions.</p>
+        <ul class="tiny-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Full medical and lifestyle intake</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Biomarker &amp; recent labs review</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Food &amp; cultural preferences mapped</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 02 Roadmap -->
+    <div class="pr-block reverse">
+      <div class="img-ph sage pr-vis reveal has-photo">
+        <img class="ph-photo" src="assets/food-banana-leaf.jpg" alt="Wellness roadmap meal" />
+      </div>
+      <div class="reveal d1">
+        <span class="eyebrow">02 · The Roadmap</span>
+        <h2 style="margin-top:20px;">A written plan, delivered <em style="color:var(--emerald-deep)">in 48 hours.</em></h2>
+        <p>You receive a personalised, written roadmap with meals, supplementation, movement and recovery &mdash; structured so you can begin Monday morning, not someday.</p>
+        <ul class="tiny-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Weekly meal architecture</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Targeted supplementation protocol</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Sleep, stress &amp; recovery anchors</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 03 Ongoing Support -->
+    <div class="pr-block">
+      <div class="img-ph warm pr-vis reveal has-photo">
+        <img class="ph-photo" src="assets/portrait-garden.jpg" alt="Follow-up support" />
+      </div>
+      <div class="reveal d1">
+        <span class="eyebrow">03 · Ongoing Support</span>
+        <h2 style="margin-top:20px;">Real change happens <em style="color:var(--emerald-deep)">between sessions.</em></h2>
+        <p>For 14 days after your consultation you have direct, asynchronous access for questions, recipe substitutions, and quiet course-corrections &mdash; because that's where the plan meets your life.</p>
+        <ul class="tiny-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Async messaging access</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Substitution &amp; tweak protocols</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Optional 4-week re-assessment</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     GALLERY — KITCHEN NOTES
+════════════════════════════════════════════════════════════════════ -->
+<section class="gallery">
+  <div class="wrap">
+    <div class="gal-head">
+      <div>
+        <span class="eyebrow reveal">Kitchen Notes</span>
+        <h2 class="reveal d1" style="margin-top:22px">Food that <em style="color:var(--emerald-deep)">heals</em>, made simple.</h2>
+      </div>
+      <p class="reveal d2">A glimpse into the kind of meals, ingredients and rituals that show up in roadmaps &mdash; rooted in Indian kitchens, designed for real weeknights.</p>
+    </div>
+
+    <div class="gal-grid">
+      <div class="img-ph gal-item gi-1 reveal has-photo">
+        <img class="ph-photo" src="assets/food-thali-rustic.jpg" alt="Balanced thali" />
+      </div>
+      <div class="img-ph warm gal-item gi-2 reveal d1 has-photo">
+        <img class="ph-photo" src="assets/food-bhakri.jpg" alt="Bhakri with palak" />
+      </div>
+      <div class="img-ph sage gal-item gi-3 reveal d2 has-photo">
+        <img class="ph-photo" src="assets/herbs-garden.jpg" alt="Fresh herbs from balcony garden" />
+      </div>
+      <div class="img-ph cream gal-item gi-4 reveal d1 has-photo">
+        <img class="ph-photo" src="assets/food-meal-nuts.jpg" alt="Clean meal with nuts" />
+      </div>
+      <div class="img-ph gal-item gi-5 reveal d2 has-photo">
+        <img class="ph-photo" src="assets/food-plate-fish.jpg" alt="Balanced plate" />
+      </div>
+      <div class="img-ph warm gal-item gi-6 reveal d3 has-photo">
+        <img class="ph-photo" src="assets/food-tiffin.jpg" alt="Balanced lunch tiffin" />
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════════════════════════════════ -->
+<section class="testimonials" id="testimonials">
+  <div class="wrap test-head">
+    <span class="eyebrow reveal">Client Voices</span>
+    <h2 class="reveal d1" style="margin-top:22px">Real people. Real changes that lasted.</h2>
+    <p class="reveal d2">A small selection from the hundreds of clients who came in skeptical and left with biomarkers, energy, and confidence they hadn't seen in years.</p>
+  </div>
+
+  <div class="marquee reveal" aria-label="Client testimonials">
+    <div class="marquee-track" id="track">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     CLOSING CTA
+════════════════════════════════════════════════════════════════════ -->
+<section class="cta-band">
+  <div class="wrap inner">
+    <span class="eyebrow reveal">Begin · One Step</span>
+    <h2 class="reveal d1" style="margin-top:22px">Your next chapter of health<br/>starts with a single conversation.</h2>
+    <p class="reveal d2">Book a 1:1 consultation and walk away with a clear, sustainable plan tailored to your body, biomarkers, and life.</p>
+    <div class="reveal d3">
+      <a href="#" class="btn" data-open-drawer="initial">
+        Book Your Consultation &mdash; <span id="ctaBandPrice">₹4,500</span>
+        <svg class="arr" width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════════════ -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>Let's begin your<br/>nutrition journey.</h4>
+        <p>Clinical nutrition guidance built on evidence, warmth, and respect for the life you actually live.</p>
+        <div class="socials" aria-label="Social links">
+          <a href="#" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M8 10v7M8 7.5v.01M12 17v-4a2 2 0 014 0v4M12 11v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M11 10l4 2-4 2v-4z" fill="currentColor"/></svg>
+          </a>
+          <a href="#" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 20.5L5 16a8 8 0 113.4 3.4L3.5 20.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 10c0 3 2 5 5 5l1.5-1.5-2-1L13 13c-1 0-2-1-2-2l.5-.5-1-2L9 10z" fill="currentColor"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:mail.foodmedico@gmail.com">mail.foodmedico@gmail.com</a></li>
+          <li><a href="tel:+918652018666">+91 86520 18666</a></li>
+          <li>Mumbai, India</li>
+          <li>By appointment only</li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#testimonials">Client Voices</a></li>
+          <li><a href="#" data-open-drawer="initial">Book a Session</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#">Journal</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <div>© 2026 FoodMedi.Co · All rights reserved · Crafted with care in Mumbai</div>
+      <div class="razorpay-badge">
+        <svg class="lockico" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M8 11V8a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Secure payments via Razorpay
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     DRAWER MODAL
+════════════════════════════════════════════════════════════════════ -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawer-head">
+    <span class="crumb" id="drawerCrumb">Services</span>
+    <button class="drawer-close" id="drawerCloseBtn" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <!-- populated by JS -->
+  </div>
+</aside>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

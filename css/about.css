@@ -1,0 +1,49 @@
+/* ── About ──────────────────────────────────────────────────────────── */
+.about {
+  background: var(--canvas-sage);
+  border-block: 1px solid var(--line);
+}
+
+.about-head {
+  display: grid; grid-template-columns: 1.2fr .9fr;
+  gap: clamp(30px, 5vw, 90px);
+  align-items: center;
+}
+@media (max-width: 820px) { .about-head { grid-template-columns: 1fr; } }
+.about-head p { max-width: 460px; font-size: 16.5px; }
+
+/* Feature grid */
+.feature-grid {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+@media (max-width: 720px) { .feature-grid { grid-template-columns: 1fr; } }
+
+.feature {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 36px 36px 32px;
+  transition: transform .35s ease, box-shadow .35s ease, border-color .3s;
+  display: flex; flex-direction: column; gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.feature:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: var(--emerald-soft); }
+
+.feature .ico {
+  width: 56px; height: 56px; border-radius: 18px;
+  background: var(--emerald-soft);
+  color: var(--emerald-deep);
+  display: grid; place-items: center;
+}
+.feature .ico svg { width: 26px; height: 26px; }
+.feature h3 { font-size: 22px; }
+.feature p { font-size: 15px; color: var(--ink-3); }
+.feature .idx {
+  position: absolute; top: 24px; right: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink-3); letter-spacing: .14em;
+}
