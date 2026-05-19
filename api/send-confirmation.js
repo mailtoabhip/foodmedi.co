@@ -432,67 +432,84 @@ function buildOwnerEmail({ plan, customerName, customerEmail, customerPhone, amo
 
 /* ── Handler ─────────────────────────────────────────────────────────── */
 export default async function handler(req, res) {
+  /* Always return JSON — never let Vercel serve an HTML error page */
+  res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
-
-  const {
-    razorpay_payment_id, razorpay_order_id, razorpay_signature,
-    service_key, amount, currency = 'INR',
-    customer_name, customer_email, customer_phone,
-  } = req.body || {};
-
-  /* ── Verify Razorpay signature (warn only — never block emails) ──────── */
-  const rzpSecret = process.env.RAZORPAY_KEY_SECRET;
-  if (rzpSecret && razorpay_order_id && razorpay_payment_id && razorpay_signature) {
-    const expected = crypto
-      .createHmac('sha256', rzpSecret)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
-    if (expected !== razorpay_signature) {
-      console.warn('⚠️ Signature mismatch — continuing anyway. order:', razorpay_order_id);
-    } else {
-      console.log('✅ Signature verified');
-    }
-  }
-
-  const plan = PLANS[service_key];
-  if (!plan) {
-    console.error('Unknown service_key:', service_key);
-    return res.status(400).json({ error: 'Unknown service', sent: false });
-  }
-
-  if (!customer_name || !customer_email) {
-    return res.status(400).json({ error: 'Missing customer details', sent: false });
-  }
-
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_APP_PASSWORD;
-
-  if (!gmailUser || !gmailPass) {
-    console.warn('Gmail credentials not set — skipping email');
-    return res.status(200).json({ sent: false, reason: 'email not configured' });
-  }
-
-  const transporter = makeTransporter();
-  const ownerEmail  = process.env.OWNER_EMAIL || gmailUser;
-  const date        = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  const emailData = {
-    plan,
-    customerName:  customer_name,
-    customerEmail: customer_email,
-    customerPhone: customer_phone,
-    amount,
-    currency,
-    paymentId: razorpay_payment_id,
-    date,
-  };
 
   try {
-    const emails = [
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
+
+    /* ── Parse body — handle both pre-parsed object and raw string ── */
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { body = {}; }
+    }
+    body = body || {};
+
+    console.log('📨 send-confirmation called, keys:', Object.keys(body).join(', '));
+
+    const {
+      razorpay_payment_id, razorpay_order_id, razorpay_signature,
+      service_key, amount, currency = 'INR',
+      customer_name, customer_email, customer_phone,
+    } = body;
+
+    /* ── Razorpay signature — warn only, never block ─────────────── */
+    const rzpSecret = process.env.RAZORPAY_KEY_SECRET;
+    if (rzpSecret && razorpay_order_id && razorpay_payment_id && razorpay_signature) {
+      const expected = crypto
+        .createHmac('sha256', rzpSecret)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+      if (expected !== razorpay_signature) {
+        console.warn('⚠️ Signature mismatch — continuing. order:', razorpay_order_id);
+      } else {
+        console.log('✅ Signature verified');
+      }
+    }
+
+    /* ── Validate ────────────────────────────────────────────────── */
+    const plan = PLANS[service_key];
+    if (!plan) {
+      console.error('Unknown service_key:', service_key, '— valid keys:', Object.keys(PLANS).join(', '));
+      return res.status(400).json({ sent: false, error: 'Unknown service: ' + service_key });
+    }
+
+    if (!customer_name || !customer_email) {
+      console.error('Missing fields — name:', customer_name, 'email:', customer_email);
+      return res.status(400).json({ sent: false, error: 'Missing customer_name or customer_email' });
+    }
+
+    /* ── Check credentials ───────────────────────────────────────── */
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_APP_PASSWORD;
+    if (!gmailUser || !gmailPass) {
+      console.warn('Gmail credentials not set');
+      return res.status(200).json({ sent: false, reason: 'email not configured' });
+    }
+
+    const transporter = makeTransporter();
+    const ownerEmail  = process.env.OWNER_EMAIL || gmailUser;
+    const date        = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const emailData = {
+      plan,
+      customerName:  customer_name,
+      customerEmail: customer_email,
+      customerPhone: customer_phone || '—',
+      amount:        amount || 0,
+      currency,
+      paymentId:     razorpay_payment_id || 'N/A',
+      date,
+    };
+
+    console.log('📧 Sending emails for:', plan.name, 'to:', customer_email, 'owner:', ownerEmail);
+
+    /* ── Send all 3 emails ───────────────────────────────────────── */
+    const results = await Promise.allSettled([
       /* 1. Customer — receipt */
       transporter.sendMail({
         from:    `"Gauri Pillai · FoodMedi.Co" <${gmailUser}>`,
@@ -500,46 +517,41 @@ export default async function handler(req, res) {
         subject: `Your ${plan.name} is confirmed ${plan.emoji} — FoodMedi.Co`,
         html:    buildReceiptEmail(emailData),
       }),
-
-      /* 2. Customer — scheduling (always send, content adapts to whether Calendly URL exists) */
+      /* 2. Customer — scheduling with Calendly link */
       transporter.sendMail({
         from:    `"Gauri Pillai · FoodMedi.Co" <${gmailUser}>`,
         to:      customer_email,
-        subject: plan.calendlyUrl
-          ? `📅 Book your ${plan.name} slot — FoodMedi.Co`
-          : `📅 We'll schedule your ${plan.name} — FoodMedi.Co`,
+        subject: `📅 Book your ${plan.name} slot — FoodMedi.Co`,
         html:    buildSchedulingEmail({ plan, customerName: customer_name, calendlyUrl: plan.calendlyUrl }),
       }),
-
       /* 3. Owner — booking notification */
       transporter.sendMail({
         from:    `"FoodMedi.Co Bookings" <${gmailUser}>`,
         to:      ownerEmail,
-        subject: `💰 New booking: ${plan.name} — ${customer_name}`,
+        subject: `New booking: ${plan.name} — ${customer_name}`,
         html:    buildOwnerEmail(emailData),
       }),
-    ];
-
-    const results = await Promise.allSettled(emails);
+    ]);
 
     const failures = results
       .map((r, i) => r.status === 'rejected' ? { index: i, reason: r.reason?.message } : null)
       .filter(Boolean);
 
     if (failures.length) {
-      console.error('Some emails failed:', JSON.stringify(failures));
+      console.error('❌ Email failures:', JSON.stringify(failures));
       return res.status(502).json({ sent: false, failures });
     }
 
-    return res.status(200).json({ sent: true, count: results.length });
+    console.log('✅ All 3 emails sent');
+    return res.status(200).json({ sent: true, count: 3 });
 
   } catch (err) {
-    console.error('Email send error:', err.message, err.code || '');
-    return res.status(502).json({
+    /* Catch any unhandled error — always return JSON, never HTML */
+    console.error('🔥 Unhandled error in send-confirmation:', err.message, err.stack);
+    return res.status(500).json({
       sent:   false,
-      error:  'Email send failed',
-      detail: err.message,
-      code:   err.code || null,
+      error:  err.message,
+      stack:  err.stack?.split('\n').slice(0, 4).join(' | '),
     });
   }
 }
