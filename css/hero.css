@@ -3,7 +3,7 @@
   padding-top: clamp(60px, 8vw, 100px);
   padding-bottom: clamp(80px, 9vw, 130px);
   position: relative;
-  overflow: clip;
+  overflow: hidden; /* clip floating badges within section bounds */
 }
 
 .hero-grid {

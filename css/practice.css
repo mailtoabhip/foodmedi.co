@@ -9,10 +9,14 @@
   margin-bottom: clamp(60px, 8vw, 120px);
 }
 .pr-block:last-child { margin-bottom: 0; }
-.pr-block.reverse { direction: rtl; }
-.pr-block.reverse > * { direction: ltr; }
+
+/* Use grid order instead of direction:rtl to avoid mobile overflow */
+.pr-block.reverse .pr-vis { order: 2; }
+.pr-block.reverse > :not(.pr-vis) { order: 1; }
 @media (max-width: 820px) {
-  .pr-block, .pr-block.reverse { grid-template-columns: 1fr; direction: ltr; }
+  .pr-block { grid-template-columns: 1fr; }
+  .pr-block.reverse .pr-vis { order: 0; }
+  .pr-block.reverse > :not(.pr-vis) { order: 0; }
 }
 
 .pr-vis { aspect-ratio: 4/5; border-radius: var(--radius-2xl); box-shadow: var(--shadow-lift); }
