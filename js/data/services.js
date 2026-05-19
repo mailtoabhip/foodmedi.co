@@ -11,6 +11,7 @@ export const SERVICES = {
     inr: { price: 4500, meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     usd: { price: 65,   meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     pill: "Start here",
+    calendlyUrl: "", /* TODO: paste your Calendly event link, e.g. https://calendly.com/gauripillai/initial */
     flagship: true,
     tag: "Recommended first step",
     imgClass: "deep",
@@ -37,9 +38,10 @@ export const SERVICES = {
     icon: "refresh",
     titleHtml: 'Follow-up Session<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "Progress reviews and plan adjustments — because real change happens between sessions, not in any single one.",
-    inr: { price: 2500, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
+    inr: { price: 1, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     usd: { price: 42,   meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     pill: "For existing clients",
+    calendlyUrl: "", /* TODO: https://calendly.com/gauripillai/followup */
     imgClass: "sage",
     photo: "assets/portrait-garden.jpg",
     shortBullets: ["Progress review", "Plan adjustments", "Symptom management", "Async support included"],
@@ -67,6 +69,7 @@ export const SERVICES = {
     inr: { price: 18000, meta: "save ₹1,500", lbl: "1 Initial Consultation + 6 Follow-ups + Custom Meal Plan + WhatsApp support." },
     usd: { price: 250,   meta: "save $37",    lbl: "1 Initial Consultation + 6 Follow-ups + Custom Meal Plan + WhatsApp support." },
     pill: "Full journey",
+    calendlyUrl: "", /* TODO: https://calendly.com/gauripillai/package */
     imgClass: "warm",
     photo: "assets/portrait-moringa.jpg",
     shortBullets: ["1 Initial + 6 Follow-ups", "Custom meal plan", "WhatsApp support", "Save 8% vs. à-la-carte"],
@@ -94,6 +97,7 @@ export const SERVICES = {
     inr: { price: 10000, meta: "for up to 10 people", lbl: "Group session, shared roadmap, recipe pack & 14-day cohort accountability." },
     usd: { price: 120,   meta: "for up to 10 people", lbl: "Group session, shared roadmap, recipe pack & 14-day cohort accountability." },
     pill: "Cohort-based",
+    calendlyUrl: "", /* TODO: https://calendly.com/gauripillai/group */
     imgClass: "sage",
     photo: "assets/family.jpg",
     shortBullets: ["Up to 10 participants", "Maternal / Kids / Teen groups", "Shared wellness roadmap", "Cohort accountability"],
@@ -130,6 +134,7 @@ export const SERVICES = {
     inr: { price: 30000, meta: "3-month comprehensive support", lbl: "Personalized care plan, digital records, and constant WhatsApp access through your treatment journey." },
     usd: { price: 400,   meta: "3-month comprehensive support", lbl: "Personalized care plan, digital records, and constant WhatsApp access through your treatment journey." },
     pill: "Specialized Clinical Care",
+    calendlyUrl: "", /* TODO: https://calendly.com/gauripillai/oncology */
     oncology: true,
     ctaLabel: "Explore Care Plan",
     payLabel: "Begin Your Care Journey",
@@ -170,6 +175,7 @@ export const SERVICES = {
     inr: { price: 25000, meta: "base package", lbl: "Comprehensive corporate wellness package — scope shaped to your team size & goals." },
     usd: { price: 350,   meta: "base package", lbl: "Comprehensive corporate wellness package — scope shaped to your team size & goals." },
     pill: "For teams",
+    calendlyUrl: "", /* TODO: https://calendly.com/gauripillai/corporate */
     imgClass: "deep",
     photo: "assets/cred-conference.jpg",
     shortBullets: ["Interactive employee workshops", "Executive 1:1 health audits", "Pantry & cafeteria audit", "Customized wellness challenges"],

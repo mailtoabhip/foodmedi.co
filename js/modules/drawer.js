@@ -369,7 +369,7 @@ function bindPayBtn() {
             }),
           }).catch(err => console.warn('Confirmation email error:', err));
 
-          showSuccess(s.name, resp.razorpay_payment_id);
+          showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
         },
 
         onDismiss() {
@@ -392,7 +392,7 @@ function bindPayBtn() {
   });
 }
 
-function showSuccess(serviceName, paymentId) {
+function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customerEmail) {
   /* Remove any existing overlay */
   document.getElementById('paySuccessOverlay')?.remove();
 
@@ -425,7 +425,16 @@ function showSuccess(serviceName, paymentId) {
         ${paymentId}
       </div>
 
-      <button class="pay-success-cta" id="paySuccessClose">
+      ${calendlyUrl ? `
+      <button class="pay-success-cta" id="payCalendlyBtn" style="margin-bottom:12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Schedule Your Session
+      </button>` : ''}
+      <button class="pay-success-cta" id="paySuccessClose"
+              style="${calendlyUrl ? 'background:transparent;color:var(--emerald);box-shadow:none;border:1.5px solid var(--line-2);' : ''}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2"
                 stroke-linecap="round" stroke-linejoin="round"/>
@@ -439,6 +448,18 @@ function showSuccess(serviceName, paymentId) {
   /* Trigger animation on next frame */
   requestAnimationFrame(() => {
     requestAnimationFrame(() => overlay.classList.add('show'));
+  });
+
+  /* Schedule button — opens Calendly popup with prefilled name & email */
+  document.getElementById('payCalendlyBtn')?.addEventListener('click', () => {
+    if (!window.Calendly) {
+      window.open(calendlyUrl, '_blank');
+      return;
+    }
+    window.Calendly.initPopupWidget({
+      url: calendlyUrl,
+      prefill: { name: customerName, email: customerEmail },
+    });
   });
 
   document.getElementById('paySuccessClose').addEventListener('click', () => {
