@@ -369,11 +369,20 @@ function bindPayBtn() {
               customer_phone:       phone,
             }),
           })
-          .then(r => r.json().then(d => {
-            if (!d.sent) console.warn('[email] not sent:', d);
-            else console.log('[email] sent OK');
-          }))
-          .catch(err => console.warn('[email] fetch error:', err));
+          .then(async r => {
+            const d = await r.json().catch(() => ({}));
+            if (d.sent) {
+              console.log('[email] ✅ sent OK, count:', d.count);
+            } else {
+              console.error('[email] ❌ failed:', JSON.stringify(d));
+              /* show visible alert on screen so it's never missed */
+              alert('⚠️ Payment succeeded but confirmation email failed.\nDetail: ' + (d.detail || d.error || JSON.stringify(d)) + '\n\nPlease check Vercel function logs.');
+            }
+          })
+          .catch(err => {
+            console.error('[email] ❌ fetch error:', err);
+            alert('⚠️ Payment succeeded but could not reach the email API.\nError: ' + err.message);
+          });
 
           showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
         },
