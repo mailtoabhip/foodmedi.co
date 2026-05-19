@@ -52,7 +52,7 @@ const PLANS = {
     name:        'Follow-up Session',
     duration:    '30–45 mins · Google Meet',
     emoji:       '🔄',
-    calendlyUrl: '',
+    calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `Consistency is where real change happens — not in any single session, but in the space between them. By continuing with a follow-up, you're giving your plan the chance to adapt to your real life, and giving yourself the chance to see what's working and what needs a nudge.`,
     nextSteps: [
       'A calendar invite with Google Meet link will arrive within 24 hours.',
@@ -66,7 +66,7 @@ const PLANS = {
     name:        '3-Month Care Package',
     duration:    '7 Sessions · 90 Days',
     emoji:       '📋',
-    calendlyUrl: '',
+    calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `You've made a real commitment — and that matters. The 3-Month Package gives you the depth and continuity that one-off sessions simply can't offer. Gauri will be with you through each phase of your journey.`,
     nextSteps: [
       'An onboarding call will be scheduled within 48 hours to map out your session timeline.',
@@ -80,7 +80,7 @@ const PLANS = {
     name:        'Group Consultation',
     duration:    '90 mins · Google Meet',
     emoji:       '🤝',
-    calendlyUrl: '',
+    calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `There's something quietly powerful about healing alongside others. Your Group Session brings together people at similar points in their health journeys — to learn, ask questions, share what's worked, and hear Gauri's guidance in a personal setting.`,
     nextSteps: [
       'Session details and the Google Meet link will be emailed separately.',
@@ -94,7 +94,7 @@ const PLANS = {
     name:        'Oncology Nutrition & Care',
     duration:    '3-month support block',
     emoji:       '💚',
-    calendlyUrl: '',
+    calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `This takes courage — and Gauri is honoured to be part of your care team. Every recommendation will be tailored around your specific diagnosis, treatment protocol, and daily life — always in coordination with your treating oncologist.`,
     nextSteps: [
       'A calendar invite with Google Meet link will arrive within 24 hours.',
@@ -109,7 +109,7 @@ const PLANS = {
     name:        'Corporate Wellness Programme',
     duration:    '60–90 min workshop',
     emoji:       '🏢',
-    calendlyUrl: '',
+    calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `A team that feels well, performs well. Gauri will work with your organisation to build nutrition habits that are practical, evidence-based, and actually enjoyable.`,
     nextSteps: [
       'A scheduling coordinator will reach out within 24 hours to plan your onboarding call.',
