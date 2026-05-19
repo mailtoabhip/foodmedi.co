@@ -4,7 +4,16 @@
   then solid emerald arrow on top. Hotspot at the tip (2,2).
 */
 :root {
-  --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='28'%3E%3Cpath d='M2 2L2 22L7 17L11 26L14 24L10 15L17 15Z' fill='white' stroke='white' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M2 2L2 22L7 17L11 26L14 24L10 15L17 15Z' fill='%23137A48' stroke='%230A5530' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 2 2;
+  /*
+    Layers (back→front):
+    1. White soft outline  — visibility on any background
+    2. Main emerald fill   — with Q-bezier curves for smooth points
+    3. Dark right-face     — 3-D depth shadow
+    4. White left-face     — light catching the left plane
+    5. Gloss ellipse       — specular highlight near the tip
+    Hotspot at tip (2, 2).
+  */
+  --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='21' viewBox='0 0 14 21'%3E%3Cpath d='M2 1.5L2 15.5Q3.8 13.5 5.5 12.5Q7 16 8 19Q8.8 20.2 9.8 19.2Q8.8 15.5 6.8 11.5L13 11.5Q12 10 2 1.5Z' fill='white' stroke='white' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M2 1.5L2 15.5Q3.8 13.5 5.5 12.5Q7 16 8 19Q8.8 20.2 9.8 19.2Q8.8 15.5 6.8 11.5L13 11.5Q12 10 2 1.5Z' fill='%23137A48'/%3E%3Cpath d='M6.8 11.5L13 11.5Q12 10 2 1.5Q5 5 6.8 11.5Z' fill='%23000' opacity='0.15'/%3E%3Cpath d='M2 1.5L2 8.5L7 5Z' fill='white' opacity='0.32'/%3E%3Cellipse cx='3' cy='4' rx='1.4' ry='0.6' fill='white' opacity='0.65' transform='rotate(-35 3 4)'/%3E%3C/svg%3E") 2 2;
 }
 
 html  { cursor: var(--cur-default), auto; }
