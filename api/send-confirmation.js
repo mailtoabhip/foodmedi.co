@@ -1,4 +1,4 @@
-/* ── Vercel serverless: verify payment + send confirmation emails ─────── */
+/* ── Vercel serverless: verify payment + send emails ─────────────────── */
 /*
   POST /api/send-confirmation
 
@@ -7,24 +7,27 @@
     GMAIL_USER           – mail.foodmedico@gmail.com
     GMAIL_APP_PASSWORD   – 16-char Gmail App Password (not your login password)
     OWNER_EMAIL          – where owner notifications go (can be same as GMAIL_USER)
+
+  Sends 3 emails per successful payment:
+    1. Customer — receipt with payment details
+    2. Customer — separate scheduling email with Calendly link (if URL exists)
+    3. Owner   — booking notification with customer details
 */
 
 import crypto     from 'crypto';
 import nodemailer from 'nodemailer';
 
-/* ── Gmail transporter (created once per cold start) ─────────────────── */
+/* ── Gmail transporter ───────────────────────────────────────────────── */
 function makeTransporter() {
   return nodemailer.createTransport({
     host:   'smtp.gmail.com',
     port:   465,
-    secure: true,           /* SSL — more reliable from cloud hosts than STARTTLS */
+    secure: true,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    tls: {
-      rejectUnauthorized: true,
-    },
+    tls: { rejectUnauthorized: true },
   });
 }
 
@@ -37,8 +40,8 @@ const PLANS = {
     calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `This is the beginning of something meaningful. Your Initial Consultation with Gauri is the first real step toward understanding your body — your unique biology, your history, your goals — and building a nutrition plan that actually fits your life, not a template borrowed from someone else's.`,
     nextSteps: [
-      'Pick a date and time using the scheduling link below — it takes under a minute.',
-      'A Google Meet link will be sent to your email once the session is scheduled.',
+      'Use the scheduling link in your separate email to pick a date and time — it takes under a minute.',
+      'A Google Meet link will be sent to your email once the session is confirmed.',
       'Please fill in the pre-consultation health questionnaire (shared in the calendar invite).',
       'Gather your most recent lab reports, prescriptions, or medical summaries if you have them.',
     ],
@@ -52,7 +55,7 @@ const PLANS = {
     calendlyUrl: '',
     thankYou:    `Consistency is where real change happens — not in any single session, but in the space between them. By continuing with a follow-up, you're giving your plan the chance to adapt to your real life, and giving yourself the chance to see what's working and what needs a nudge.`,
     nextSteps: [
-      'A calendar invite with Google Meet link will be sent within 24 hours.',
+      'A calendar invite with Google Meet link will arrive within 24 hours.',
       'Before the session, note what's felt easy, what's been hard, and any changes since your last visit.',
       'If your labs have been updated, please share them ahead of time.',
     ],
@@ -60,11 +63,11 @@ const PLANS = {
   },
 
   package: {
-    name:        'Nutrition Package',
-    duration:    'Multi-session programme',
+    name:        '3-Month Care Package',
+    duration:    '7 Sessions · 90 Days',
     emoji:       '📋',
     calendlyUrl: '',
-    thankYou:    `You've made a real commitment — and that matters. The Nutrition Package gives you the depth and continuity that one-off sessions simply can't offer. Gauri will be with you through each phase of your journey.`,
+    thankYou:    `You've made a real commitment — and that matters. The 3-Month Package gives you the depth and continuity that one-off sessions simply can't offer. Gauri will be with you through each phase of your journey.`,
     nextSteps: [
       'An onboarding call will be scheduled within 48 hours to map out your session timeline.',
       'You'll receive a pre-consultation questionnaire — please complete it before the first session.',
@@ -74,8 +77,8 @@ const PLANS = {
   },
 
   group: {
-    name:        'Group Session',
-    duration:    'Group · Google Meet',
+    name:        'Group Consultation',
+    duration:    '90 mins · Google Meet',
     emoji:       '🤝',
     calendlyUrl: '',
     thankYou:    `There's something quietly powerful about healing alongside others. Your Group Session brings together people at similar points in their health journeys — to learn, ask questions, share what's worked, and hear Gauri's guidance in a personal setting.`,
@@ -88,11 +91,11 @@ const PLANS = {
   },
 
   oncology: {
-    name:        'Oncology Nutrition Consultation',
-    duration:    '60–75 mins · Google Meet',
+    name:        'Oncology Nutrition & Care',
+    duration:    '3-month support block',
     emoji:       '💚',
     calendlyUrl: '',
-    thankYou:    `This takes courage — and Gauri is honoured to be part of your care team. Every recommendation will be tailored around your specific diagnosis, treatment protocol, and daily life — always in coordination with your treating oncologist at Tata Cancer Hospital.`,
+    thankYou:    `This takes courage — and Gauri is honoured to be part of your care team. Every recommendation will be tailored around your specific diagnosis, treatment protocol, and daily life — always in coordination with your treating oncologist.`,
     nextSteps: [
       'A calendar invite with Google Meet link will arrive within 24 hours.',
       'Please fill in the oncology intake form — diagnosis, treatment phase, medications, side effects.',
@@ -104,7 +107,7 @@ const PLANS = {
 
   corporate: {
     name:        'Corporate Wellness Programme',
-    duration:    'Team · Custom schedule',
+    duration:    '60–90 min workshop',
     emoji:       '🏢',
     calendlyUrl: '',
     thankYou:    `A team that feels well, performs well. Gauri will work with your organisation to build nutrition habits that are practical, evidence-based, and actually enjoyable.`,
@@ -117,10 +120,12 @@ const PLANS = {
   },
 };
 
-/* ── Customer email HTML ─────────────────────────────────────────────── */
-function buildCustomerEmail({ plan, customerName, amount, currency, paymentId, date }) {
-  const firstName  = customerName.split(' ')[0] || customerName;
-  const amountFmt  = currency === 'INR'
+/* ─────────────────────────────────────────────────────────────────────
+   EMAIL 1 — Customer receipt
+   ───────────────────────────────────────────────────────────────────── */
+function buildReceiptEmail({ plan, customerName, amount, currency, paymentId, date }) {
+  const firstName = customerName.split(' ')[0] || customerName;
+  const amountFmt = currency === 'INR'
     ? '₹' + Number(amount).toLocaleString('en-IN')
     : '$' + Number(amount).toLocaleString('en-US');
 
@@ -131,19 +136,6 @@ function buildCustomerEmail({ plan, customerName, amount, currency, paymentId, d
         <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;color:#2C3A2F;">${step}</td>
       </tr></table>
     </td></tr>`).join('');
-
-  const calendlyBtn = plan.calendlyUrl ? `
-    <table cellpadding="0" cellspacing="0" border="0" style="margin-top:32px;">
-      <tr><td style="background:#137A48;border-radius:999px;padding:15px 36px;text-align:center;">
-        <a href="${plan.calendlyUrl}"
-           style="color:#fff;font-size:15px;font-weight:700;text-decoration:none;font-family:'Helvetica Neue',sans-serif;letter-spacing:-.01em;">
-          📅 &nbsp;Schedule Your Session →
-        </a>
-      </td></tr>
-    </table>
-    <p style="margin:10px 0 32px;font-size:12.5px;color:#8A9A8E;text-align:center;">
-      Click above to pick a date &amp; time — your Google Meet link will be sent instantly.
-    </p>` : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -199,10 +191,7 @@ function buildCustomerEmail({ plan, customerName, amount, currency, paymentId, d
       </td></tr>
     </table>
 
-    <!-- Schedule CTA -->
-    ${calendlyBtn}
-
-    <!-- Next steps -->
+    <!-- What happens next -->
     <p style="margin:0 0 18px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-family:monospace;color:#137A48;">What happens next</p>
     <table width="100%" cellpadding="0" cellspacing="0" border="0">${stepsHtml}</table>
 
@@ -230,7 +219,141 @@ function buildCustomerEmail({ plan, customerName, amount, currency, paymentId, d
 </body></html>`;
 }
 
-/* ── Owner notification email ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
+   EMAIL 2 — Customer scheduling (separate, Calendly-focused)
+   ───────────────────────────────────────────────────────────────────── */
+function buildSchedulingEmail({ plan, customerName, calendlyUrl }) {
+  const firstName = customerName.split(' ')[0] || customerName;
+
+  const hasCalendly = !!calendlyUrl;
+
+  const body = hasCalendly ? `
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.75;color:#2C3A2F;">
+      Your payment is confirmed. The next step is to pick a date and time for your session.
+      It only takes a minute — click below and choose a slot that works for you.
+    </p>
+
+    <!-- Big Calendly CTA -->
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 28px;">
+      <tr><td style="background:#137A48;border-radius:999px;padding:18px 48px;text-align:center;">
+        <a href="${calendlyUrl}"
+           style="color:#fff;font-size:16px;font-weight:700;text-decoration:none;
+                  font-family:'Helvetica Neue',sans-serif;letter-spacing:-.01em;">
+          📅 &nbsp; Book Your Session Now →
+        </a>
+      </td></tr>
+    </table>
+
+    <p style="margin:0 0 8px;font-size:13px;color:#8A9A8E;text-align:center;">
+      Can't find a suitable slot? Reply to this email and we'll arrange something.
+    </p>
+
+    <!-- What to expect after booking -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background:#F4F7F3;border-radius:12px;border:1px solid #DDE3DA;margin-top:32px;">
+      <tr><td style="padding:20px 24px;">
+        <p style="margin:0 0 14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-family:monospace;color:#137A48;">After you book</p>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td style="padding-bottom:10px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;font-weight:700;">1.</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">You'll receive a calendar invite with a Google Meet link instantly.</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding-bottom:10px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;font-weight:700;">2.</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">You'll get a pre-consultation form to fill in — takes about 5 minutes.</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;font-weight:700;">3.</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">Join at your scheduled time — no downloads needed, just a browser.</td>
+            </tr></table>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>` : `
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.75;color:#2C3A2F;">
+      Your payment is confirmed. Gauri will reach out to you personally within 24 hours
+      to schedule your session at a time that works for you.
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#2C3A2F;">
+      In the meantime, it would help to have the following ready:
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background:#F4F7F3;border-radius:12px;border:1px solid #DDE3DA;">
+      <tr><td style="padding:20px 24px;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+          <tr><td style="padding-bottom:10px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;">→</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">Recent lab reports or medical summaries.</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding-bottom:10px;vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;">→</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">A rough idea of your typical daily diet.</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding-right:10px;color:#137A48;">→</td>
+              <td style="font-size:14px;color:#2C3A2F;line-height:1.6;">Your health goals — short-term and long-term.</td>
+            </tr></table>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Schedule Your Session · FoodMedi.Co</title></head>
+<body style="margin:0;padding:0;background:#F4F7F3;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7F3;padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+  <tr><td style="background:#0E5F38;border-radius:20px 20px 0 0;padding:36px 40px 32px;text-align:center;">
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);">FoodMedi.Co</p>
+    <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:400;color:#fff;letter-spacing:-.01em;">
+      ${hasCalendly ? '📅 Schedule Your Session' : '📅 We\'ll Be in Touch'}
+    </h1>
+    <p style="margin:10px 0 0;font-size:14px;color:rgba(255,255,255,.75);">${plan.name} · ${plan.duration}</p>
+  </td></tr>
+
+  <tr><td style="background:#fff;padding:40px 40px 36px;">
+    <p style="margin:0 0 24px;font-size:17px;line-height:1.65;color:#0A2615;">Hi <strong>${firstName},</strong></p>
+    ${body}
+    <p style="margin:32px 0 0;font-size:15px;color:#0A2615;">
+      With care,<br/>
+      <strong>Gauri Pillai</strong><br/>
+      <span style="font-size:13px;color:#5A6A5E;">Clinical Dietitian · FoodMedi.Co</span>
+    </p>
+  </td></tr>
+
+  <tr><td style="background:#EEF3ED;border-radius:0 0 20px 20px;padding:24px 40px;text-align:center;">
+    <p style="margin:0 0 6px;font-size:12px;color:#5A6A5E;">
+      Questions? Reply to this email or write to
+      <a href="mailto:hello@foodmedi.co" style="color:#137A48;text-decoration:none;">hello@foodmedi.co</a>
+    </p>
+    <p style="margin:0;font-size:11px;color:#8A9A8E;">
+      © ${new Date().getFullYear()} FoodMedi.Co · All sessions are conducted over Google Meet.
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   EMAIL 3 — Owner booking notification
+   ───────────────────────────────────────────────────────────────────── */
 function buildOwnerEmail({ plan, customerName, customerEmail, customerPhone, amount, currency, paymentId, date }) {
   const amountFmt = currency === 'INR'
     ? '₹' + Number(amount).toLocaleString('en-IN')
@@ -292,7 +415,9 @@ function buildOwnerEmail({ plan, customerName, customerEmail, customerPhone, amo
         </a>
       </td></tr>
     </table>
-    <p style="margin:20px 0 0;font-size:13px;color:#8A9A8E;">A confirmation email with receipt and scheduling link has been sent to the customer.</p>
+    <p style="margin:16px 0 0;font-size:13px;color:#8A9A8E;">
+      A payment receipt and a separate scheduling email have been sent to the customer.
+    </p>
   </td></tr>
 
   <tr><td style="background:#EEF3ED;border-radius:0 0 16px 16px;padding:18px 36px;text-align:center;">
@@ -319,19 +444,30 @@ export default async function handler(req, res) {
     customer_name, customer_email, customer_phone,
   } = req.body || {};
 
-  /* ── Verify Razorpay signature ── */
+  /* ── Verify Razorpay signature ─────────────────────────────────────── */
   const rzpSecret = process.env.RAZORPAY_KEY_SECRET;
-  if (rzpSecret) {
+  if (rzpSecret && razorpay_order_id && razorpay_payment_id) {
     const expected = crypto
       .createHmac('sha256', rzpSecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
-    if (expected !== razorpay_signature)
-      return res.status(400).json({ error: 'Payment verification failed' });
+    if (expected !== razorpay_signature) {
+      console.error('Signature mismatch — order:', razorpay_order_id, 'payment:', razorpay_payment_id);
+      return res.status(400).json({ error: 'Payment verification failed', sent: false });
+    }
+  } else {
+    console.warn('Signature check skipped — missing secret or IDs');
   }
 
   const plan = PLANS[service_key];
-  if (!plan) return res.status(400).json({ error: 'Unknown service' });
+  if (!plan) {
+    console.error('Unknown service_key:', service_key);
+    return res.status(400).json({ error: 'Unknown service', sent: false });
+  }
+
+  if (!customer_name || !customer_email) {
+    return res.status(400).json({ error: 'Missing customer details', sent: false });
+  }
 
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
@@ -344,31 +480,64 @@ export default async function handler(req, res) {
   const transporter = makeTransporter();
   const ownerEmail  = process.env.OWNER_EMAIL || gmailUser;
   const date        = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-  const firstName   = customer_name.split(' ')[0];
+
+  const emailData = {
+    plan,
+    customerName:  customer_name,
+    customerEmail: customer_email,
+    customerPhone: customer_phone,
+    amount,
+    currency,
+    paymentId: razorpay_payment_id,
+    date,
+  };
 
   try {
-    /* Send both emails in parallel */
-    await Promise.all([
-      /* Customer: confirmation + receipt + Calendly link */
+    const emails = [
+      /* 1. Customer — receipt */
       transporter.sendMail({
         from:    `"Gauri Pillai · FoodMedi.Co" <${gmailUser}>`,
         to:      customer_email,
-        subject: `Your ${plan.name} is confirmed, ${firstName}! ${plan.emoji}`,
-        html:    buildCustomerEmail({ plan, customerName: customer_name, amount, currency, paymentId: razorpay_payment_id, date }),
+        subject: `Your ${plan.name} is confirmed ${plan.emoji} — FoodMedi.Co`,
+        html:    buildReceiptEmail(emailData),
       }),
-      /* Owner: booking notification */
+
+      /* 2. Customer — scheduling (always send, content adapts to whether Calendly URL exists) */
+      transporter.sendMail({
+        from:    `"Gauri Pillai · FoodMedi.Co" <${gmailUser}>`,
+        to:      customer_email,
+        subject: plan.calendlyUrl
+          ? `📅 Book your ${plan.name} slot — FoodMedi.Co`
+          : `📅 We'll schedule your ${plan.name} — FoodMedi.Co`,
+        html:    buildSchedulingEmail({ plan, customerName: customer_name, calendlyUrl: plan.calendlyUrl }),
+      }),
+
+      /* 3. Owner — booking notification */
       transporter.sendMail({
         from:    `"FoodMedi.Co Bookings" <${gmailUser}>`,
         to:      ownerEmail,
         subject: `💰 New booking: ${plan.name} — ${customer_name}`,
-        html:    buildOwnerEmail({ plan, customerName: customer_name, customerEmail: customer_email, customerPhone: customer_phone, amount, currency, paymentId: razorpay_payment_id, date }),
+        html:    buildOwnerEmail(emailData),
       }),
-    ]);
+    ];
 
-    return res.status(200).json({ sent: true });
+    const results = await Promise.allSettled(emails);
+
+    const failures = results
+      .map((r, i) => r.status === 'rejected' ? { index: i, reason: r.reason?.message } : null)
+      .filter(Boolean);
+
+    if (failures.length) {
+      console.error('Some emails failed:', JSON.stringify(failures));
+      return res.status(502).json({ sent: false, failures });
+    }
+
+    return res.status(200).json({ sent: true, count: results.length });
+
   } catch (err) {
     console.error('Email send error:', err.message, err.code || '');
     return res.status(502).json({
+      sent:   false,
       error:  'Email send failed',
       detail: err.message,
       code:   err.code || null,
