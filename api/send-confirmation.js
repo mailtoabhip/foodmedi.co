@@ -222,6 +222,92 @@ function buildEmailHtml({ plan, customerName, amount, currency, paymentId, date 
 </html>`;
 }
 
+/* ── Owner notification email ───────────────────────────────────────── */
+function buildOwnerEmailHtml({ plan, customerName, customerEmail, customerPhone, amount, currency, paymentId, date }) {
+  const amountFmt = currency === 'INR'
+    ? '₹' + Number(amount).toLocaleString('en-IN')
+    : '$' + Number(amount).toLocaleString('en-US');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><title>New Booking · FoodMedi.Co</title></head>
+<body style="margin:0;padding:0;background:#F4F7F3;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F7F3;padding:40px 20px;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+  <!-- Header -->
+  <tr><td style="background:#0E5F38;border-radius:16px 16px 0 0;padding:28px 36px;">
+    <p style="margin:0 0 4px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);font-family:monospace;">FoodMedi.Co · New Booking</p>
+    <h1 style="margin:0;font-family:Georgia,serif;font-size:24px;font-weight:400;color:#fff;">
+      💰 Payment received — ${plan.name}
+    </h1>
+  </td></tr>
+
+  <!-- Body -->
+  <tr><td style="background:#fff;padding:32px 36px;">
+
+    <!-- Amount callout -->
+    <div style="background:#EEF3ED;border-left:4px solid #137A48;border-radius:10px;padding:20px 24px;margin-bottom:28px;">
+      <p style="margin:0 0 4px;font-size:12px;color:#5A6A5E;font-family:monospace;letter-spacing:.1em;text-transform:uppercase;">Amount Received</p>
+      <p style="margin:0;font-family:Georgia,serif;font-size:32px;color:#137A48;font-weight:700;">${amountFmt}</p>
+      <p style="margin:4px 0 0;font-size:13px;color:#5A6A5E;">${plan.name} &nbsp;·&nbsp; ${date}</p>
+    </div>
+
+    <!-- Customer details -->
+    <p style="margin:0 0 16px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-family:monospace;color:#137A48;">Customer Details</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+      <tr>
+        <td style="font-size:13px;color:#5A6A5E;padding-bottom:12px;width:110px;">Name</td>
+        <td style="font-size:14px;font-weight:600;color:#0A2615;padding-bottom:12px;">${customerName}</td>
+      </tr>
+      <tr>
+        <td style="font-size:13px;color:#5A6A5E;padding-bottom:12px;">Email</td>
+        <td style="font-size:14px;color:#2C3A2F;padding-bottom:12px;">
+          <a href="mailto:${customerEmail}" style="color:#137A48;text-decoration:none;">${customerEmail}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="font-size:13px;color:#5A6A5E;padding-bottom:12px;">Phone</td>
+        <td style="font-size:14px;color:#2C3A2F;padding-bottom:12px;">${customerPhone || '—'}</td>
+      </tr>
+      <tr>
+        <td style="font-size:13px;color:#5A6A5E;padding-bottom:12px;">Plan</td>
+        <td style="font-size:14px;color:#2C3A2F;padding-bottom:12px;">${plan.name} &nbsp;·&nbsp; ${plan.duration}</td>
+      </tr>
+      <tr>
+        <td style="font-size:13px;color:#5A6A5E;">Payment ID</td>
+        <td style="font-size:13px;font-family:monospace;color:#5A6A5E;">${paymentId}</td>
+      </tr>
+    </table>
+
+    <!-- Quick reply CTA -->
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="background:#137A48;border-radius:999px;padding:12px 28px;">
+        <a href="mailto:${customerEmail}?subject=Your ${encodeURIComponent(plan.name)} — FoodMedi.Co"
+           style="color:#fff;font-size:14px;font-weight:600;text-decoration:none;font-family:'Helvetica Neue',sans-serif;">
+          Reply to ${customerName.split(' ')[0]} →
+        </a>
+      </td></tr>
+    </table>
+
+    <p style="margin:24px 0 0;font-size:13px;color:#8A9A8E;">
+      A confirmation email has already been sent to the customer automatically.
+    </p>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="background:#EEF3ED;border-radius:0 0 16px 16px;padding:18px 36px;text-align:center;">
+    <p style="margin:0;font-size:11px;color:#8A9A8E;">FoodMedi.Co · Booking notification</p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
 /* ── Handler ────────────────────────────────────────────────────────── */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -239,6 +325,7 @@ export default async function handler(req, res) {
     currency = 'INR',
     customer_name,
     customer_email,
+    customer_phone,
   } = req.body || {};
 
   /* ── Verify Razorpay signature ── */
@@ -255,42 +342,54 @@ export default async function handler(req, res) {
   if (!plan) return res.status(400).json({ error: 'Unknown service' });
 
   const resendKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.FROM_EMAIL || 'Gauri Pillai · FoodMedi.Co <hello@foodmedi.co>';
+  const fromEmail = process.env.FROM_EMAIL
+    ? `Gauri Pillai · FoodMedi.Co <${process.env.FROM_EMAIL}>`
+    : 'Gauri Pillai · FoodMedi.Co <hello@foodmedi.co>';
+  const ownerEmail = process.env.OWNER_EMAIL || process.env.FROM_EMAIL || 'hello@foodmedi.co';
 
   if (!resendKey) {
     console.warn('RESEND_API_KEY not set — skipping email');
     return res.status(200).json({ sent: false, reason: 'email not configured' });
   }
 
-  const date    = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-  const html    = buildEmailHtml({ plan, customerName: customer_name, amount, currency, paymentId: razorpay_payment_id, date });
-  const subject = `Your ${plan.name} is confirmed, ${customer_name.split(' ')[0]}! ${plan.emoji}`;
+  const date        = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  const firstName   = customer_name.split(' ')[0];
 
-  let emailRes, emailData;
-  try {
-    emailRes  = await fetch('https://api.resend.com/emails', {
+  const customerHtml  = buildEmailHtml({ plan, customerName: customer_name, amount, currency, paymentId: razorpay_payment_id, date });
+  const ownerHtml     = buildOwnerEmailHtml({ plan, customerName: customer_name, customerEmail: customer_email, customerPhone: customer_phone, amount, currency, paymentId: razorpay_payment_id, date });
+
+  const sendEmail = (to, subject, html) =>
+    fetch('https://api.resend.com/emails', {
       method:  'POST',
-      headers: {
-        Authorization:  `Bearer ${resendKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from:    fromEmail,
-        to:      [customer_email],
-        subject,
-        html,
-      }),
+      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: fromEmail, to: [to], subject, html }),
+    }).then(r => r.json().then(d => ({ ok: r.ok, data: d })));
+
+  try {
+    /* Send both emails in parallel */
+    const [customerResult, ownerResult] = await Promise.all([
+      sendEmail(
+        customer_email,
+        `Your ${plan.name} is confirmed, ${firstName}! ${plan.emoji}`,
+        customerHtml,
+      ),
+      sendEmail(
+        ownerEmail,
+        `💰 New booking: ${plan.name} — ${customer_name}`,
+        ownerHtml,
+      ),
+    ]);
+
+    if (!customerResult.ok) console.error('Customer email failed:', customerResult.data);
+    if (!ownerResult.ok)   console.error('Owner email failed:', ownerResult.data);
+
+    return res.status(200).json({
+      sent:     true,
+      customer: customerResult.ok,
+      owner:    ownerResult.ok,
     });
-    emailData = await emailRes.json();
   } catch (err) {
     console.error('Resend error:', err);
     return res.status(502).json({ error: 'Email send failed' });
   }
-
-  if (!emailRes.ok) {
-    console.error('Resend API error:', emailData);
-    return res.status(400).json({ error: emailData?.message || 'Email send failed' });
-  }
-
-  return res.status(200).json({ sent: true, id: emailData.id });
 }

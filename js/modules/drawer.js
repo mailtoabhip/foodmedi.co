@@ -366,6 +366,7 @@ function bindPayBtn() {
               currency:             'INR',
               customer_name:        name,
               customer_email:       email,
+              customer_phone:       phone,
             }),
           }).catch(err => console.warn('Confirmation email error:', err));
 
