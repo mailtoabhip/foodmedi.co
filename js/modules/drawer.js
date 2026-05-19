@@ -2,6 +2,7 @@ import { SERVICES } from '../data/services.js';
 import { COUNTRIES } from '../data/countries.js';
 import { ICONS } from './icons.js';
 import { state, fmtPrice, priceMeta, priceLbl, gateway } from './state.js';
+import { initiatePayment } from './razorpay.js';
 
 let currentDrawerKey = null;
 let drawerPhoneCountry = 'US';
@@ -307,14 +308,106 @@ function bindPayMethods() {
 function bindPayBtn() {
   const btn = document.getElementById('payBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    const { price, gw, paylabel } = btn.dataset;
-    const text = paylabel ? `${paylabel} (Pay ${price})` : `Pay ${price} via ${gw}`;
-    btn.innerHTML = '<span>Processing securely…</span>';
-    setTimeout(() => {
-      btn.innerHTML = `<span>${text}</span><span class="sm">SECURE →</span>`;
-    }, 1400);
+
+  btn.addEventListener('click', async () => {
+    const s   = SERVICES[currentDrawerKey];
+    const cur = state.currency;
+
+    /* ── Collect form values ── */
+    const body    = document.querySelector('.checkout-body');
+    const email   = body?.querySelector('input[type="email"]')?.value.trim() ?? '';
+    const nameEl  = body?.querySelector('input[type="text"]');
+    const name    = nameEl?.value.trim() ?? '';
+    const phone   = body?.querySelector('input[type="tel"]')?.value.trim() ?? '';
+
+    /* ── Basic validation ── */
+    const missing = [];
+    if (!email) missing.push('email');
+    if (!name)  missing.push('name');
+    if (!phone) missing.push('phone');
+    if (missing.length) {
+      missing.forEach(f => {
+        const inp = body?.querySelector(`input[type="${f === 'phone' ? 'tel' : f === 'name' ? 'text' : f}"]`);
+        if (inp) { inp.style.outline = '2px solid var(--crimson)'; inp.focus(); }
+      });
+      return;
+    }
+
+    /* ── Clear any previous validation errors ── */
+    body?.querySelectorAll('input').forEach(i => i.style.outline = '');
+
+    /* ── INR → Razorpay ── */
+    if (cur === 'INR') {
+      const amount = s.inr.price;
+      const origText = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Opening secure checkout…</span>';
+
+      await initiatePayment({
+        amount,
+        currency: 'INR',
+        serviceName: s.name,
+        name,
+        email,
+        phone,
+
+        onSuccess(resp) {
+          showSuccess(s.name, resp.razorpay_payment_id);
+        },
+
+        onDismiss() {
+          /* User closed the modal — restore button */
+          btn.disabled = false;
+          btn.innerHTML = origText;
+        },
+
+        onError(msg) {
+          btn.disabled = false;
+          btn.innerHTML = origText;
+          showError(msg);
+        },
+      });
+
+    } else {
+      /* USD — international payments (PayPal/Wise) handled manually for now */
+      showError('International payments via PayPal / Wise — please email us directly to book.');
+    }
   });
+}
+
+function showSuccess(serviceName, paymentId) {
+  const checkout = document.querySelector('.checkout');
+  if (!checkout) return;
+  checkout.innerHTML = `
+    <div style="text-align:center;padding:40px 24px 32px;">
+      <div style="width:64px;height:64px;background:var(--emerald-soft);border-radius:50%;display:grid;place-items:center;margin:0 auto 20px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="var(--emerald)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:26px;margin:0 0 10px;color:var(--ink);">
+        Payment confirmed!
+      </h3>
+      <p style="color:var(--ink-2);font-size:15px;line-height:1.65;max-width:340px;margin:0 auto 18px;">
+        Your <strong>${serviceName}</strong> is booked.
+        You'll receive a confirmation email with your Google Meet link shortly.
+      </p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;">
+        Payment ID&nbsp;·&nbsp;${paymentId}
+      </div>
+    </div>`;
+}
+
+function showError(msg) {
+  const existing = document.querySelector('.pay-error');
+  if (existing) existing.remove();
+  const el = document.createElement('p');
+  el.className = 'pay-error';
+  el.style.cssText = 'color:var(--crimson);font-size:13.5px;margin:10px 0 0;text-align:center;';
+  el.textContent = msg;
+  document.getElementById('payBtn')?.insertAdjacentElement('afterend', el);
+  setTimeout(() => el.remove(), 6000);
 }
 
 // ── Open / close ──────────────────────────────────────────────────────
