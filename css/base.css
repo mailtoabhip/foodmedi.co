@@ -11,6 +11,7 @@ html {
 }
 
 body {
+  position: relative; /* anchor for the absolute dot-grid wrapper */
   background: var(--canvas);
   color: var(--ink);
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
