@@ -5,7 +5,7 @@ html, body { margin: 0; padding: 0; }
 /* Both html AND body needed to fully kill horizontal scroll */
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip ≠ scroll container → sticky nav still works */
   max-width: 100%;
   zoom: 0.82; /* shrinks everything so 100% browser zoom ≈ old 90% view */
 }

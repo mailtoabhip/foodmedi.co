@@ -4,8 +4,10 @@ import { renderServices }   from './modules/services.js';
 import { initDrawer, openDrawer } from './modules/drawer.js';
 import { initCurrencyToggle }     from './modules/currency.js';
 import { initTestimonials } from './modules/testimonials.js';
+import { initDotGrid }      from './modules/dotGrid.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+  initDotGrid();
   initReveal();
   initDrawer();
   initAccordion();
