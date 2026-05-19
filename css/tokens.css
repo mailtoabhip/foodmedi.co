@@ -25,4 +25,5 @@
 
   /* Spacing rhythm */
   --gutter: clamp(20px, 5vw, 80px);
+  --nav-h:  80px; /* fixed nav height — used to offset page content */
 }

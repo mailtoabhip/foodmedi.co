@@ -38,6 +38,7 @@ html {
 
 body {
   position: relative; /* anchor for the absolute dot-grid wrapper */
+  padding-top: var(--nav-h); /* push content below the fixed nav */
   background: var(--canvas);
   color: var(--ink);
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
