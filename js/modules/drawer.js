@@ -377,26 +377,61 @@ function bindPayBtn() {
 }
 
 function showSuccess(serviceName, paymentId) {
-  const checkout = document.querySelector('.checkout');
-  if (!checkout) return;
-  checkout.innerHTML = `
-    <div style="text-align:center;padding:40px 24px 32px;">
-      <div style="width:64px;height:64px;background:var(--emerald-soft);border-radius:50%;display:grid;place-items:center;margin:0 auto 20px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="var(--emerald)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  /* Remove any existing overlay */
+  document.getElementById('paySuccessOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pay-success-overlay';
+  overlay.id = 'paySuccessOverlay';
+  overlay.innerHTML = `
+    <div class="pay-success-card">
+      <div class="pay-check-wrap">
+        <svg viewBox="0 0 88 88">
+          <!-- Background ring -->
+          <circle class="ring-track" cx="44" cy="44" r="39"/>
+          <!-- Animated fill ring -->
+          <circle class="ring-fill" cx="44" cy="44" r="39"
+                  transform="rotate(-90 44 44)"/>
+          <!-- Animated checkmark -->
+          <path class="check-mark" d="M27 44l11 11 23-22"/>
         </svg>
       </div>
-      <h3 style="font-family:'Playfair Display',serif;font-size:26px;margin:0 0 10px;color:var(--ink);">
-        Payment confirmed!
-      </h3>
-      <p style="color:var(--ink-2);font-size:15px;line-height:1.65;max-width:340px;margin:0 auto 18px;">
-        Your <strong>${serviceName}</strong> is booked.
-        You'll receive a confirmation email with your Google Meet link shortly.
+
+      <h2>Payment Confirmed!</h2>
+
+      <p class="sub">
+        Your <strong>${serviceName}</strong> is booked.<br/>
+        A confirmation &amp; Google Meet link will be sent to your email shortly.
       </p>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;">
-        Payment ID&nbsp;·&nbsp;${paymentId}
+
+      <div class="pay-id-chip">
+        <span class="dot"></span>
+        ${paymentId}
       </div>
+
+      <button class="pay-success-cta" id="paySuccessClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Home
+      </button>
     </div>`;
+
+  document.body.appendChild(overlay);
+
+  /* Trigger animation on next frame */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => overlay.classList.add('show'));
+  });
+
+  document.getElementById('paySuccessClose').addEventListener('click', () => {
+    overlay.classList.remove('show');
+    setTimeout(() => {
+      overlay.remove();
+      closeDrawer();
+    }, 380);
+  });
 }
 
 function showError(msg) {

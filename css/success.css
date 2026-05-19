@@ -1,0 +1,160 @@
+/* ── Payment Success Overlay ─────────────────────────────────────────── */
+.pay-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(10, 38, 21, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+.pay-success-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.pay-success-card {
+  background: #fff;
+  border-radius: 32px;
+  padding: 52px 44px 44px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  transform: translateY(32px) scale(.96);
+  transition: transform .5s cubic-bezier(.34,1.46,.64,1);
+  box-shadow: 0 32px 80px -20px rgba(10,38,21,.35);
+}
+.pay-success-overlay.show .pay-success-card {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Animated ring + check ── */
+.pay-check-wrap {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 28px;
+  position: relative;
+}
+.pay-check-wrap svg {
+  width: 88px;
+  height: 88px;
+  overflow: visible;
+}
+
+/* Ring fill animation */
+.ring-track {
+  fill: none;
+  stroke: var(--emerald-soft);
+  stroke-width: 5;
+}
+.ring-fill {
+  fill: none;
+  stroke: var(--emerald);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 245;
+  stroke-dashoffset: 245;
+  transition: stroke-dashoffset .7s cubic-bezier(.6,0,.4,1) .1s;
+}
+.pay-success-overlay.show .ring-fill {
+  stroke-dashoffset: 0;
+}
+
+/* Check mark draw */
+.check-mark {
+  fill: none;
+  stroke: var(--emerald);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 52;
+  stroke-dashoffset: 52;
+  transition: stroke-dashoffset .45s ease .75s;
+}
+.pay-success-overlay.show .check-mark {
+  stroke-dashoffset: 0;
+}
+
+/* ── Text content ── */
+.pay-success-card h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(24px, 3.5vw, 32px);
+  color: var(--ink);
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.pay-success-card .sub {
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin: 0 auto 28px;
+  max-width: 340px;
+}
+.pay-success-card .sub strong { color: var(--ink); font-weight: 600; }
+
+/* Payment ID chip */
+.pay-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--canvas-sage);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  letter-spacing: .06em;
+  margin-bottom: 32px;
+}
+.pay-id-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+
+/* CTA button */
+.pay-success-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 32px;
+  background: var(--emerald);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .25s, transform .2s;
+  box-shadow: 0 8px 20px -8px rgba(19,122,72,.55);
+  width: 100%;
+  justify-content: center;
+}
+.pay-success-cta:hover { background: var(--emerald-deep); transform: translateY(-1px); }
+
+/* Confetti dots (pure CSS, decorative) */
+.pay-success-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background-image:
+    radial-gradient(circle, var(--emerald-soft) 2px, transparent 2px),
+    radial-gradient(circle, #E3D9C1 2px, transparent 2px);
+  background-size: 28px 28px, 44px 44px;
+  background-position: 0 0, 14px 14px;
+  opacity: 0;
+  transition: opacity .6s ease .3s;
+  pointer-events: none;
+  z-index: 0;
+}
+.pay-success-overlay.show .pay-success-card::before { opacity: .5; }
+.pay-success-card > * { position: relative; z-index: 1; }
+
+@media (max-width: 500px) {
+  .pay-success-card { padding: 40px 28px 36px; }
+}
