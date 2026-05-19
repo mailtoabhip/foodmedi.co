@@ -91,9 +91,7 @@
 .badge.b2 { top: 44%; right: -22px; }
 .badge.b3 { bottom: 9%; left: -10px; }
 @media (max-width: 920px) {
-  .badge.b1 { left: 10px; }
-  .badge.b2 { right: 10px; }
-  .badge.b3 { left: 20px; }
+  .badge.b1, .badge.b2, .badge.b3 { display: none; }
 }
 
 /* Stats strip */
