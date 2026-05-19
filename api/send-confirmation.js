@@ -15,10 +15,15 @@ import nodemailer from 'nodemailer';
 /* ── Gmail transporter (created once per cold start) ─────────────────── */
 function makeTransporter() {
   return nodemailer.createTransport({
-    service: 'gmail',
+    host:   'smtp.gmail.com',
+    port:   465,
+    secure: true,           /* SSL — more reliable from cloud hosts than STARTTLS */
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: true,
     },
   });
 }
@@ -362,7 +367,11 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ sent: true });
   } catch (err) {
-    console.error('Email send error:', err.message);
-    return res.status(502).json({ error: 'Email send failed', detail: err.message });
+    console.error('Email send error:', err.message, err.code || '');
+    return res.status(502).json({
+      error:  'Email send failed',
+      detail: err.message,
+      code:   err.code || null,
+    });
   }
 }
