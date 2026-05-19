@@ -368,7 +368,12 @@ function bindPayBtn() {
               customer_email:       email,
               customer_phone:       phone,
             }),
-          }).catch(err => console.warn('Confirmation email error:', err));
+          })
+          .then(r => r.json().then(d => {
+            if (!d.sent) console.warn('[email] not sent:', d);
+            else console.log('[email] sent OK');
+          }))
+          .catch(err => console.warn('[email] fetch error:', err));
 
           showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
         },
