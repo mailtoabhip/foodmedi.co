@@ -31,8 +31,8 @@ export function initDotGrid() {
   const SPACING  = 22;   // px between dot centres — tighter grid
   const DOT_R    = 1.8;  // dot radius in px
   const BASE_A   = 0.08; // resting opacity — clearly visible
-  const PEAK_A   = 0.22; // opacity at cursor centre — obvious hover
-  const HOV_RAD  = 160;  // pixel radius of hover influence
+  const PEAK_A   = 0.45; // opacity at cursor centre — strong hover
+  const HOV_RAD  = 180;  // pixel radius of hover influence
 
   /* Mouse position relative to the document (not viewport) */
   let mx = -9999, my = -9999;
