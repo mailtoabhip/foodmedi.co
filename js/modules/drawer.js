@@ -352,7 +352,23 @@ function bindPayBtn() {
         email,
         phone,
 
-        onSuccess(resp) {
+        async onSuccess(resp) {
+          /* Fire-and-forget confirmation email — don't block the UI */
+          fetch('/api/send-confirmation', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id:  resp.razorpay_payment_id,
+              razorpay_order_id:    resp.razorpay_order_id,
+              razorpay_signature:   resp.razorpay_signature,
+              service_key:          currentDrawerKey,
+              amount:               s.inr.price,
+              currency:             'INR',
+              customer_name:        name,
+              customer_email:       email,
+            }),
+          }).catch(err => console.warn('Confirmation email error:', err));
+
           showSuccess(s.name, resp.razorpay_payment_id);
         },
 
