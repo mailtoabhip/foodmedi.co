@@ -11,7 +11,7 @@ export const SERVICES = {
     inr: { price: 4500, meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     usd: { price: 65,   meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     pill: "Start here",
-    calendlyUrl: "", /* TODO: paste your Calendly event link, e.g. https://calendly.com/gauripillai/initial */
+    calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
     flagship: true,
     tag: "Recommended first step",
     imgClass: "deep",

@@ -392,6 +392,18 @@ function bindPayBtn() {
   });
 }
 
+function openCalendly(url, name, email) {
+  if (window.Calendly) {
+    window.Calendly.initPopupWidget({
+      url,
+      prefill: { name, email },
+    });
+  } else {
+    /* Fallback: open in new tab if widget hasn't loaded */
+    window.open(url, '_blank');
+  }
+}
+
 function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customerEmail) {
   /* Remove any existing overlay */
   document.getElementById('paySuccessOverlay')?.remove();
@@ -447,19 +459,19 @@ function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customer
 
   /* Trigger animation on next frame */
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => overlay.classList.add('show'));
+    requestAnimationFrame(() => {
+      overlay.classList.add('show');
+
+      /* Auto-open Calendly 1.5s after success card appears */
+      if (calendlyUrl) {
+        setTimeout(() => openCalendly(calendlyUrl, customerName, customerEmail), 1500);
+      }
+    });
   });
 
-  /* Schedule button — opens Calendly popup with prefilled name & email */
+  /* Schedule button — manual trigger */
   document.getElementById('payCalendlyBtn')?.addEventListener('click', () => {
-    if (!window.Calendly) {
-      window.open(calendlyUrl, '_blank');
-      return;
-    }
-    window.Calendly.initPopupWidget({
-      url: calendlyUrl,
-      prefill: { name: customerName, email: customerEmail },
-    });
+    openCalendly(calendlyUrl, customerName, customerEmail);
   });
 
   document.getElementById('paySuccessClose').addEventListener('click', () => {
