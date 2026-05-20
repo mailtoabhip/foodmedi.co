@@ -317,7 +317,7 @@ function renderDrawer(key) {
         ${subPlanSelectorHtml}
         <div class="field">
           <label>Amount</label>
-          <input type="text" id="amountField" value="${priceStr}" readonly style="background:#F6F8F4;font-family:'Playfair Display',Georgia,serif;font-size:20px;color:var(--ink);font-weight:500;" />
+          <input type="text" id="amountField" value="${priceStr}" readonly style="background:#F6F8F4;font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;color:var(--ink);font-weight:700;" />
         </div>
         ${formFields}
         ${payBtnHtml}

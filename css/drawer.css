@@ -170,7 +170,7 @@
 .spc-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .spc-label { font-weight: 600; font-size: 14.5px; color: var(--ink); font-family: 'Plus Jakarta Sans', sans-serif; }
 .sub-plan-card.active .spc-label { color: var(--emerald-deep); }
-.spc-price { font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: var(--ink); white-space: nowrap; }
+.spc-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--ink); white-space: nowrap; }
 .sub-plan-card.active .spc-price { color: var(--emerald-deep); }
 .spc-duration { display: block; font-size: 10.5px; color: var(--ink-3); font-family: 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; margin-top: 5px; }
 .spc-desc { font-size: 13px; color: var(--ink-3); margin-top: 8px; line-height: 1.55; margin-bottom: 0; }

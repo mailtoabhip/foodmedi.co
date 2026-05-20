@@ -44,7 +44,7 @@ export function renderServiceCard(s) {
       <div class="foot">
         <div class="price">
           ${s.subPlans
-            ? `<span class="plans-available">3 plans available</span>`
+            ? `<span data-price-svc="${s.key}">3 plans</span><small>available inside</small>`
             : `<span data-price-svc="${s.key}">${priceStr}</span><small>${meta}</small>`}
         </div>
         <button class="${btnClass}" data-service="${s.key}">
