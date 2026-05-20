@@ -186,6 +186,7 @@ function renderDrawer(key) {
 
   // Sub-plan cards HTML (oncology only)
   const subPlanSelectorHtml = s.subPlans ? `
+    <p class="sub-plan-title">Select your plan</p>
     <div class="sub-plan-cards" id="subPlanCards" role="radiogroup" aria-label="Choose your plan">
       ${s.subPlans.map(sp => {
         const p = isINR ? sp.inr : sp.usd;

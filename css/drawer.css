@@ -148,6 +148,15 @@
 .pay-btn .sm { font-weight: 500; opacity: .8; font-size: 12px; letter-spacing: .06em; }
 .pay-btn .gateway { display: block; font-size: 11px; opacity: .75; font-weight: 500; letter-spacing: .04em; margin-top: 2px; }
 
+/* Sub-plan section title */
+.sub-plan-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
 /* Sub-plan cards (oncology) */
 .sub-plan-cards { display: flex; flex-direction: column; gap: 10px; }
 
