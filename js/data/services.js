@@ -193,5 +193,5 @@ export const SERVICES = {
 };
 
 /* To show hidden services, move keys back into VISIBLE_SERVICES */
-export const VISIBLE_SERVICES = ['initial', 'followup'];
-export const SERVICE_ORDER    = VISIBLE_SERVICES; /* package, group, corporate, oncology hidden */
+export const VISIBLE_SERVICES = ['initial', 'followup', 'package', 'group', 'corporate', 'oncology'];
+export const SERVICE_ORDER    = VISIBLE_SERVICES;
