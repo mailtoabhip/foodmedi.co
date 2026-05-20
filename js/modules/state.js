@@ -15,5 +15,5 @@ export function priceLbl(service, currency) {
   return currency === 'USD' ? service.usd.lbl : service.inr.lbl;
 }
 export function gateway(currency) {
-  return currency === 'USD' ? 'PayPal' : 'Razorpay';
+  return 'Razorpay';
 }

@@ -84,6 +84,32 @@ function pickCountry(code, flag, dial) {
     it.classList.toggle('active', it.dataset.code === code);
   });
   document.getElementById('ccDropdown')?.classList.remove('open');
+
+  /* Auto-switch currency: India → INR, anywhere else → USD */
+  const targetCurrency = code === 'IN' ? 'INR' : 'USD';
+  if (state.currency !== targetCurrency && currentDrawerKey) {
+    /* Save filled-in values so re-render doesn't wipe them */
+    const body = document.querySelector('.checkout-body');
+    const savedEmail = body?.querySelector('input[type="email"]')?.value || '';
+    const savedName  = body?.querySelector('input[type="text"]')?.value  || '';
+
+    /* Update state + global currency toggle buttons */
+    state.currency = targetCurrency;
+    document.querySelectorAll('.currency-toggle button[data-currency]').forEach(btn => {
+      const active = btn.dataset.currency === targetCurrency;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-checked', String(active));
+    });
+
+    renderDrawer(currentDrawerKey);
+
+    /* Restore values */
+    const nb = document.querySelector('.checkout-body');
+    const emailEl = nb?.querySelector('input[type="email"]');
+    const nameEl  = nb?.querySelector('input[type="text"]');
+    if (emailEl && savedEmail) emailEl.value = savedEmail;
+    if (nameEl  && savedName)  nameEl.value  = savedName;
+  }
 }
 
 function filterCountries(q) {
@@ -158,7 +184,7 @@ function renderDrawer(key) {
 
   const checkoutHead = isINR
     ? `<span class="razor"><span class="rzr-mark">R</span> Razorpay Checkout</span>`
-    : `<span class="razor"><span class="rzr-mark" style="background:#003087;">P</span> PayPal · Wise</span>`;
+    : `<span class="razor"><span class="rzr-mark">R</span> Razorpay · International</span>`;
 
   const payBtnText = s.payLabel
     ? `${s.payLabel} (Pay ${priceStr})`
@@ -209,9 +235,8 @@ function renderDrawer(key) {
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Card</div>
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Net Banking</div>
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Wallet</div>`
-    : `<div class="pm active" role="radio" aria-checked="true"><span class="dot-r"></span> PayPal</div>
-       <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Wise</div>
-       <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Card</div>`;
+    : `<div class="pm active" role="radio" aria-checked="true"><span class="dot-r"></span> International Card</div>
+       <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Visa / Mastercard / Amex</div>`;
 
   document.getElementById('drawerBody').innerHTML = `
     <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;">
@@ -261,7 +286,7 @@ function renderDrawer(key) {
           <span>${payBtnText}</span>
           <span class="sm">SECURE →</span>
         </button>
-        ${!isINR ? `
+        ${isINR ? `
           <div class="gst-note">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
               <path d="M9 12l2 2 4-4M12 3l8.5 4v6c0 5-3.6 9.4-8.5 10.5C7.1 22.4 3.5 18 3.5 13V7L12 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -401,8 +426,65 @@ function bindPayBtn() {
       });
 
     } else {
-      /* USD — international payments (PayPal/Wise) handled manually for now */
-      showError('International payments via PayPal / Wise — please email us directly to book.');
+      /* USD → Razorpay international (card only) */
+      const amount   = s.usd.price;
+      const origText = btn.innerHTML;
+
+      btn.disabled  = true;
+      btn.innerHTML = '<span>Opening secure checkout…</span>';
+
+      /* Build full phone with dial code for international */
+      const dialCode   = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
+      const fullPhone  = dialCode ? `${dialCode} ${phone}` : phone;
+
+      await initiatePayment({
+        amount,
+        currency: 'USD',
+        serviceName: s.name,
+        name,
+        email,
+        phone: fullPhone,
+
+        async onSuccess(resp) {
+          fetch('/api/send-confirmation', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_order_id:   resp.razorpay_order_id,
+              razorpay_signature:  resp.razorpay_signature,
+              service_key:         currentDrawerKey,
+              amount:              s.usd.price,
+              currency:            'USD',
+              customer_name:       name,
+              customer_email:      email,
+              customer_phone:      fullPhone,
+            }),
+          })
+          .then(async r => {
+            const d = await r.json().catch(() => ({}));
+            if (d.sent) console.log('[email] ✅ sent OK, count:', d.count);
+            else {
+              console.error('[email] ❌ failed:', JSON.stringify(d));
+              alert('⚠️ Payment succeeded but confirmation email failed.\nDetail: ' + (d.detail || d.error || JSON.stringify(d)));
+            }
+          })
+          .catch(err => console.error('[email] ❌ fetch error:', err));
+
+          showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
+        },
+
+        onDismiss() {
+          btn.disabled  = false;
+          btn.innerHTML = origText;
+        },
+
+        onError(msg) {
+          btn.disabled  = false;
+          btn.innerHTML = origText;
+          showError(msg);
+        },
+      });
     }
   });
 }
