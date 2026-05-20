@@ -526,7 +526,7 @@ function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customer
 
       <p class="sub">
         Your <strong>${serviceName}</strong> is booked.<br/>
-        A confirmation &amp; Google Meet link will be sent to your email shortly.
+        A confirmation will be sent to your email shortly. Please schedule a suitable slot now — don't worry if you can't right now, we'll also send you a scheduling link by email.
       </p>
 
       <div class="pay-id-chip">
