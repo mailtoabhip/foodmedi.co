@@ -1,4 +1,4 @@
-import { SERVICES } from '../data/services.js';
+﻿import { SERVICES } from '../data/services.js';
 import { COUNTRIES } from '../data/countries.js';
 import { ICONS } from './icons.js';
 import { state, fmtPrice, fmtINR, fmtUSD, priceMeta, priceLbl, gateway } from './state.js';
@@ -171,7 +171,7 @@ function renderDrawer(key) {
     activeSubPlan = s.subPlans.find(p => p.key === currentSubPlan);
   }
 
-  // Price — use sub-plan price for oncology, otherwise service default
+  // Price, use sub-plan price for oncology, otherwise service default
   let priceStr, meta, activeRawPrice;
   if (activeSubPlan) {
     activeRawPrice = isINR ? activeSubPlan.inr : activeSubPlan.usd;
@@ -351,7 +351,7 @@ function renderDrawer(key) {
   bindSubPlanCards(s);
   bindPayBtn();
 
-  // Floating pay button (INR only — shown when #payBtn is scrolled out of view)
+  // Floating pay button (INR only, shown when #payBtn is scrolled out of view)
   document.getElementById('drawerFloat')?.remove();
   if (isINR) {
     const floatEl = document.createElement('div');
@@ -363,7 +363,7 @@ function renderDrawer(key) {
       </button>`;
     document.getElementById('drawer').appendChild(floatEl);
 
-    // Scroll to checkout section — does not trigger payment
+    // Scroll to checkout section, does not trigger payment
     document.getElementById('floatPayBtn')?.addEventListener('click', () => {
       document.getElementById('payBtn')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
@@ -485,7 +485,7 @@ function bindPayBtn() {
         phone,
 
         async onSuccess(resp) {
-          /* Fire-and-forget confirmation email — don't block the UI */
+          /* Fire-and-forget confirmation email, don't block the UI */
           fetch('/api/send-confirmation', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -520,7 +520,7 @@ function bindPayBtn() {
         },
 
         onDismiss() {
-          /* User closed the modal — restore button */
+          /* User closed the modal, restore button */
           btn.disabled = false;
           btn.innerHTML = origText;
         },
@@ -633,7 +633,7 @@ function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customer
 
       <p class="sub">
         Your <strong>${serviceName}</strong> is booked.<br/>
-        A confirmation will be sent to your email shortly. Please schedule a suitable slot now — don't worry if you can't right now, we'll also send you a scheduling link by email. If you have completed consultations in the past, please ignore this scheduling link.
+        A confirmation will be sent to your email shortly. Please schedule a suitable slot now, don't worry if you can't right now, we'll also send you a scheduling link by email. If you have completed consultations in the past, please ignore this scheduling link.
       </p>
 
       <div class="pay-id-chip">
@@ -673,7 +673,7 @@ function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customer
     });
   });
 
-  /* Schedule button — manual trigger */
+  /* Schedule button, manual trigger */
   document.getElementById('payCalendlyBtn')?.addEventListener('click', () => {
     openCalendly(calendlyUrl, customerName, customerEmail);
   });

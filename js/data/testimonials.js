@@ -1,13 +1,13 @@
-export const TESTIMONIALS = [
+﻿export const TESTIMONIALS = [
   {
     name: "Harmeet Singh",
     role: "Mumbai · 6 months",
-    quote: "Gauri's approach to my pre-diabetes wasn't about <b>restriction</b> — it was about understanding my body. My HbA1c is back in range and I haven't felt deprived once."
+    quote: "Gauri's approach to my pre-diabetes wasn't about <b>restriction</b>, it was about understanding my body. My HbA1c is back in range and I haven't felt deprived once."
   },
   {
     name: "Kiranjeet Kaur",
     role: "Bengaluru · 4 months",
-    quote: "She helped me <b>stabilise my metabolism</b> after years of yo-yo dieting. The plan actually fits inside my life — that's the whole difference."
+    quote: "She helped me <b>stabilise my metabolism</b> after years of yo-yo dieting. The plan actually fits inside my life, that's the whole difference."
   },
   {
     name: "Aditi Sharma",
@@ -17,12 +17,12 @@ export const TESTIMONIALS = [
   {
     name: "Rahul Mehta",
     role: "Mumbai · 5 months",
-    quote: "I came in for weight management and ended up with so much more — better sleep, calmer mornings, <b>steadier energy</b> all day. Worth every rupee."
+    quote: "I came in for weight management and ended up with so much more, better sleep, calmer mornings, <b>steadier energy</b> all day. Worth every rupee."
   },
   {
     name: "Neha Patil",
     role: "Delhi · 7 months",
-    quote: "Post-cancer treatment, I needed someone who understood the medical reality. Gauri's care was <b>clinical but deeply warm</b> — exactly what I needed."
+    quote: "Post-cancer treatment, I needed someone who understood the medical reality. Gauri's care was <b>clinical but deeply warm</b>, exactly what I needed."
   },
   {
     name: "Ananya Nair",
