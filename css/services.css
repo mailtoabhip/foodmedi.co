@@ -68,11 +68,21 @@
 /* Services grid */
 .svc-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 22px;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
 }
-@media (max-width: 980px) { .svc-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 680px) { .svc-grid { grid-template-columns: 1fr; } }
+
+.svc-coming-soon {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--ink-3);
+  letter-spacing: .02em;
+}
 
 /* Service card */
 .svc {
