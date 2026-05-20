@@ -70,9 +70,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 22px;
-  max-width: 1160px;
-  margin-left: auto;
-  margin-right: auto;
 }
 @media (max-width: 1024px) { .svc-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 720px) { .svc-grid { grid-template-columns: 1fr; } }
