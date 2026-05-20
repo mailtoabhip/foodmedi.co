@@ -35,7 +35,7 @@ function makeTransporter() {
 const PLANS = {
   initial: {
     name:        'Initial Consultation',
-    duration:    '60–75 mins · Google Meet',
+    duration:    '60 mins · Google Meet',
     emoji:       '🌱',
     calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `This is the beginning of something meaningful. Your Initial Consultation with Gauri is the first real step toward understanding your body — your unique biology, your history, your goals — and building a nutrition plan that actually fits your life, not a template borrowed from someone else's.`,
@@ -50,7 +50,7 @@ const PLANS = {
 
   followup: {
     name:        'Follow-up Session',
-    duration:    '30–45 mins · Google Meet',
+    duration:    '60 mins · Google Meet',
     emoji:       '🔄',
     calendlyUrl: 'https://calendly.com/foodmedico/schedule-a-meeting',
     thankYou:    `Consistency is where real change happens — not in any single session, but in the space between them. By continuing with a follow-up, you're giving your plan the chance to adapt to your real life, and giving yourself the chance to see what's working and what needs a nudge.`,
