@@ -43,8 +43,9 @@ export function renderServiceCard(s) {
       <ul>${ulItems}</ul>
       <div class="foot">
         <div class="price">
-          <span data-price-svc="${s.key}">${priceStr}</span>
-          <small>${meta}</small>
+          ${s.subPlans
+            ? `<span class="plans-available">3 plans available</span>`
+            : `<span data-price-svc="${s.key}">${priceStr}</span><small>${meta}</small>`}
         </div>
         <button class="${btnClass}" data-service="${s.key}">
           ${ctaLabel}

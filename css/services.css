@@ -173,6 +173,15 @@
 }
 
 .price { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: var(--ink); line-height: 1; }
+.plans-available {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--emerald-deep);
+  background: var(--emerald-soft);
+  padding: 6px 14px; border-radius: 999px;
+  letter-spacing: .02em;
+}
+.svc.oncology .plans-available { background: #fff; border: 1px solid #D8E2D2; }
 .price small { font-size: 12px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink-3); display: block; margin-top: 6px; letter-spacing: .04em; }
 .svc.flagship .price small { color: rgba(255,255,255,.6); }
 

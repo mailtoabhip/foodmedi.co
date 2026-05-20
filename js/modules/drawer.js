@@ -184,20 +184,24 @@ function renderDrawer(key) {
   }
   const lbl = priceLbl(s, c);
 
-  // Sub-plan selector HTML (oncology only)
+  // Sub-plan cards HTML (oncology only)
   const subPlanSelectorHtml = s.subPlans ? `
-    <div class="field">
-      <label>Choose Your Plan</label>
-      <select class="sub-plan-select" id="oncSubPlan">
-        ${s.subPlans.map(sp => {
-          const p = isINR ? sp.inr : sp.usd;
-          const sym = isINR ? '₹' : '$';
-          const fmt = isINR ? p.toLocaleString('en-IN') : p.toLocaleString('en-US');
-          return `<option value="${sp.key}"${sp.key === currentSubPlan ? ' selected' : ''}>${sp.label} — ${sym}${fmt}</option>`;
-        }).join('')}
-      </select>
-    </div>
-    <p class="sub-plan-desc" id="subPlanDesc">${activeSubPlan?.desc || ''}</p>` : '';
+    <div class="sub-plan-cards" id="subPlanCards" role="radiogroup" aria-label="Choose your plan">
+      ${s.subPlans.map(sp => {
+        const p = isINR ? sp.inr : sp.usd;
+        const formatted = isINR ? fmtINR(p) : fmtUSD(p);
+        const isActive = sp.key === currentSubPlan;
+        return `
+          <div class="sub-plan-card${isActive ? ' active' : ''}" data-plan="${sp.key}" role="radio" aria-checked="${isActive}" tabindex="0">
+            <div class="spc-top">
+              <span class="spc-label">${sp.label}</span>
+              <span class="spc-price">${formatted}</span>
+            </div>
+            <span class="spc-duration">${sp.duration}</span>
+            <p class="spc-desc">${sp.desc}</p>
+          </div>`;
+      }).join('')}
+    </div>` : '';
 
   if (isINR) drawerPhoneCountry = 'IN';
 
@@ -344,7 +348,7 @@ function renderDrawer(key) {
   // Bind interactions
   bindCountryDropdown();
   bindPhoneValidation();
-  bindSubPlanDropdown(s);
+  bindSubPlanCards(s);
   bindPayBtn();
 
   // Floating pay button (INR only — shown when #payBtn is scrolled out of view)
@@ -377,43 +381,47 @@ function renderDrawer(key) {
   }
 }
 
-function bindSubPlanDropdown(s) {
-  const sel = document.getElementById('oncSubPlan');
-  if (!sel || !s.subPlans) return;
+function bindSubPlanCards(s) {
+  const container = document.getElementById('subPlanCards');
+  if (!container || !s.subPlans) return;
 
-  sel.addEventListener('change', () => {
-    currentSubPlan = sel.value;
-    const sp = s.subPlans.find(p => p.key === currentSubPlan);
-    if (!sp) return;
+  container.querySelectorAll('.sub-plan-card').forEach(card => {
+    const activate = () => {
+      container.querySelectorAll('.sub-plan-card').forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-checked', 'false');
+      });
+      card.classList.add('active');
+      card.setAttribute('aria-checked', 'true');
 
-    const isINR = state.currency === 'INR';
-    const rawPrice = isINR ? sp.inr : sp.usd;
-    const newPriceStr = isINR ? fmtINR(rawPrice) : fmtUSD(rawPrice);
+      currentSubPlan = card.dataset.plan;
+      const sp = s.subPlans.find(p => p.key === currentSubPlan);
+      if (!sp) return;
 
-    // Update amount field
-    const amountInput = document.getElementById('amountField');
-    if (amountInput) amountInput.value = newPriceStr;
+      const isINR = state.currency === 'INR';
+      const rawPrice = isINR ? sp.inr : sp.usd;
+      const newPriceStr = isINR ? fmtINR(rawPrice) : fmtUSD(rawPrice);
 
-    // Update sub-plan description
-    const descEl = document.getElementById('subPlanDesc');
-    if (descEl) descEl.textContent = sp.desc || '';
+      // Update amount field
+      const amountInput = document.getElementById('amountField');
+      if (amountInput) amountInput.value = newPriceStr;
 
-    // Update pay button text and data-amount
-    const payBtn = document.getElementById('payBtn');
-    if (payBtn) {
-      payBtn.dataset.amount = String(rawPrice);
-      const btnSpan = payBtn.querySelector('span:first-child');
-      const payLabel = payBtn.dataset.paylabel;
-      if (btnSpan) {
-        btnSpan.textContent = payLabel
-          ? `${payLabel} (Pay ${newPriceStr})`
-          : `Pay ${newPriceStr} via Razorpay`;
+      // Update pay button
+      const payBtn = document.getElementById('payBtn');
+      if (payBtn) {
+        payBtn.dataset.amount = String(rawPrice);
+        const btnSpan = payBtn.querySelector('span:first-child');
+        const payLabel = payBtn.dataset.paylabel;
+        if (btnSpan) {
+          btnSpan.textContent = payLabel
+            ? `${payLabel} (Pay ${newPriceStr})`
+            : `Pay ${newPriceStr} via Razorpay`;
+        }
       }
-    }
+    };
 
-    // Update float button text
-    const floatSpan = document.querySelector('#floatPayBtn span:first-child');
-    if (floatSpan) floatSpan.textContent = 'Proceed to Payment';
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
   });
 }
 
