@@ -141,7 +141,7 @@ export const SERVICES = {
     imgClass: "sage",
     photo: "assets/portrait-coat.jpg",
     shortBullets: ["Pre-surgery optimization", "Chemo &amp; radiation support", "Enteral nutrition management", "Constant WhatsApp access"],
-    intro: "Nutrition is a critical pillar of cancer care. Drawing from extensive clinical experience at Tata Cancer Hospital, this specialized program is designed to protect your strength, manage treatment side effects, and provide unwavering support when you and your family need it most.",
+    intro: "Nutrition is a critical pillar of cancer care. Drawing from extensive clinical experience at Tata Memorial Hospital, this specialized program is designed to protect your strength, manage treatment side effects, and provide unwavering support when you and your family need it most.",
     sections: [
       {
         title: "How We Support You",
