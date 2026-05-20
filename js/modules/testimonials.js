@@ -6,7 +6,6 @@ function quoteCard(t) {
       <div class="mark">"</div>
       <p>${t.quote}</p>
       <div class="who">
-        <div class="av img-ph sage" aria-hidden="true"></div>
         <div>
           <b>${t.name}</b>
           <small>${t.role}</small>
