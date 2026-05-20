@@ -8,7 +8,7 @@ export const SERVICES = {
     icon: "stethoscope",
     titleHtml: 'Initial Consultation<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "A one-time, in-depth assessment to understand your full health picture and lay the foundation for a tailored nutrition plan.",
-    inr: { price: 4500, meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
+    inr: { price: 3500, meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     usd: { price: 65,   meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     pill: "Start here",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
@@ -38,7 +38,7 @@ export const SERVICES = {
     icon: "refresh",
     titleHtml: 'Follow-up Session<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "Progress reviews and plan adjustments — because real change happens between sessions, not in any single one.",
-    inr: { price: 1, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
+    inr: { price: 2000, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     usd: { price: 42,   meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     pill: "For existing clients",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
@@ -192,4 +192,6 @@ export const SERVICES = {
   }
 };
 
-export const SERVICE_ORDER = ['initial', 'followup', 'package', 'group', 'corporate', 'oncology'];
+/* To show hidden services, move keys back into VISIBLE_SERVICES */
+export const VISIBLE_SERVICES = ['initial', 'followup'];
+export const SERVICE_ORDER    = VISIBLE_SERVICES; /* package, group, corporate, oncology hidden */
