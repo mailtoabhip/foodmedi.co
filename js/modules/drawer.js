@@ -526,7 +526,7 @@ function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customer
 
       <p class="sub">
         Your <strong>${serviceName}</strong> is booked.<br/>
-        A confirmation will be sent to your email shortly. Please schedule a suitable slot now — don't worry if you can't right now, we'll also send you a scheduling link by email.
+        A confirmation will be sent to your email shortly. Please schedule a suitable slot now — don't worry if you can't right now, we'll also send you a scheduling link by email. If you have completed consultations in the past, please ignore this scheduling link.
       </p>
 
       <div class="pay-id-chip">
