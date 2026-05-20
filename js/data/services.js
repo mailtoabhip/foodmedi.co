@@ -1,15 +1,15 @@
 export const SERVICES = {
   initial: {
     key: "initial",
-    crumb: "Services · Initial Consultation",
-    name: "Initial Consultation",
-    shortTitle: "Initial Consultation",
+    crumb: "Services · General Consultation",
+    name: "General Consultation",
+    shortTitle: "General Consultation",
     duration: "60 mins · Google Meet",
     icon: "stethoscope",
-    titleHtml: 'Initial Consultation<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
+    titleHtml: 'General Consultation<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "A one-time, in-depth assessment to understand your full health picture and lay the foundation for a tailored nutrition plan.",
     inr: { price: 3500, meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
-    usd: { price: 65,   meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
+    usd: { price: 50,   meta: "one-time assessment", lbl: "Full health & diet history, medical report review, nutrition goal setting." },
     pill: "Start here",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
     flagship: true,
@@ -39,7 +39,7 @@ export const SERVICES = {
     titleHtml: 'Follow-up Session<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "Progress reviews and plan adjustments — because real change happens between sessions, not in any single one.",
     inr: { price: 2000, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
-    usd: { price: 42,   meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
+    usd: { price: 35,   meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     pill: "For existing clients",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
     imgClass: "sage",
@@ -124,32 +124,42 @@ export const SERVICES = {
 
   oncology: {
     key: "oncology",
-    crumb: "Specialized Care · Oncology Nutrition",
-    name: "Oncology Nutrition & Care",
-    shortTitle: "Oncology Nutrition &amp; Care",
-    duration: "3-month support block",
+    crumb: "Specialized Care · Cancer Care Program",
+    name: "Cancer Care Program",
+    shortTitle: "Cancer Care Program",
+    duration: "Assessment · Follow-up · Packages",
     icon: "care",
-    titleHtml: 'Comprehensive Oncology<br/><em style="color:var(--emerald-deep)">Care &amp; Support.</em>',
-    lede: "A one-stop, specialized nutrition solution within your reach. No matter where you are in the world, you don't have to navigate this journey alone.",
-    inr: { price: 30000, meta: "3-month comprehensive support", lbl: "Personalized care plan, digital records, and constant WhatsApp access through your treatment journey." },
-    usd: { price: 400,   meta: "3-month comprehensive support", lbl: "Personalized care plan, digital records, and constant WhatsApp access through your treatment journey." },
-    pill: "Specialized Clinical Care",
+    titleHtml: 'Cancer Care<br/><em style="color:var(--emerald-deep)">Program.</em>',
+    lede: "You have enough to think about. Let us handle your nutrition. A dedicated clinical program for every stage of your cancer journey.",
+    inr: { price: 4500, meta: "from · one-time assessment", lbl: "Assessment, follow-up, or 3-month support — choose what fits your journey." },
+    usd: { price: 65,   meta: "from · one-time assessment", lbl: "Assessment, follow-up, or 3-month support — choose what fits your journey." },
+    pill: "Cancer Care",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
     oncology: true,
-    ctaLabel: "Explore Care Plan",
+    ctaLabel: "View More About the Plan",
     payLabel: "Begin Your Care Journey",
     imgClass: "sage",
     photo: "assets/portrait-coat.jpg",
-    shortBullets: ["Pre-surgery optimization", "Chemo &amp; radiation support", "Enteral nutrition management", "Constant WhatsApp access"],
-    intro: "Nutrition is a critical pillar of cancer care. Drawing from extensive clinical experience at Tata Memorial Hospital, this specialized program is designed to protect your strength, manage treatment side effects, and provide unwavering support when you and your family need it most.",
+    shortBullets: ["Every stage of cancer care", "Enteral &amp; tube feeding guidance", "Palliative &amp; end-of-life support", "Constant WhatsApp access"],
+    subPlans: [
+      { key: "assessment", label: "One-time Assessment",      duration: "60–75 mins · Google Meet", inr: 4500,  usd: 65,  desc: "A comprehensive nutritional assessment to understand your current status, identify risks early, and build a plan tailored to your diagnosis." },
+      { key: "followup",   label: "Follow-up Session",        duration: "30–45 mins · Google Meet", inr: 2500,  usd: 42,  desc: "A dedicated check-in to review progress, manage side effects, and adjust your nutrition plan as your treatment evolves." },
+      { key: "package",    label: "3-Month Support Package",  duration: "3-month support block",             inr: 18000, usd: 250, desc: "Comprehensive 3-month support covering all phases — continuous adjustments, WhatsApp access, and a custom digital care plan." }
+    ],
+    intro: "A cancer diagnosis changes everything. Suddenly, a question as simple as “What should I eat?” feels impossible to answer. There is advice coming from every direction, and most of it does not account for you — your culture, your family, your budget, or what you are actually going through.<br><br>As a clinical dietitian who works closely with cancer patients, I know that nutrition during cancer care is not just about food. It is about feeling supported, understood, and cared for at every stage of your journey.<br><br>Good nutrition is one of the most powerful tools available during cancer treatment — and it is often one of the most overlooked. Starting nutrition support early can help your body prepare for surgery and treatment, reduce the severity of side effects, support your recovery, and improve your overall quality of life. This program is built around you.",
     sections: [
       {
-        title: "How We Support You",
+        title: "What This Program Offers",
         rows: [
-          { ico: "shield",  b: "Pre-Surgery Care &amp; Optimization", t: "Building your body's nutritional reserves and strength to ensure you are in the best possible condition before undergoing surgery." },
-          { ico: "heart",   b: "Chemo &amp; Radiation Support",        t: "Consistent, adaptive guidance to help manage nausea, taste changes, and weight loss during active treatment cycles." },
-          { ico: "care",    b: "Enteral Nutrition Management",         t: "Expert clinical management and guidance for tube feeding (enteral support), ensuring safe, optimal nourishment when oral intake is difficult." },
-          { ico: "dove",    b: "End-of-Life &amp; Palliative Care",    t: "Highly sensitive, comfort-focused nutrition strategies designed to maintain dignity, manage symptoms, and provide gentle nourishment." }
+          { ico: "shield",      b: "Nutrition Assessment at Diagnosis",         t: "Understanding where you are starting from, identifying nutritional risks early, and building a plan that fits your life right now." },
+          { ico: "star",        b: "Prehabilitation Before Treatment",           t: "Getting your body as strong as possible before chemotherapy, radiation, or surgery begins, so you are better equipped to handle what is ahead." },
+          { ico: "stethoscope", b: "Nutrition Optimisation Before Surgery",      t: "Targeted nutrition support in the weeks before surgery to support healing, reduce complications, and speed up recovery." },
+          { ico: "heart",       b: "Support During Chemotherapy &amp; Radiation",t: "Ongoing guidance through active treatment, adapting your nutrition plan as your needs change week to week." },
+          { ico: "list",        b: "Managing Symptoms &amp; Side Effects",       t: "Practical, realistic strategies for nausea, appetite loss, mouth sores, fatigue, weight changes, and digestive issues." },
+          { ico: "care",        b: "Home Enteral Nutrition &amp; Tube Feeding",  t: "Clear, compassionate support for patients and families navigating tube feeding at home, with guidance every step of the way." },
+          { ico: "dove",        b: "Palliative Care Nutrition",                  t: "When the focus of care shifts to comfort and quality of life, nutrition shifts with it. Support is gentle, flexible, and always led by what matters most to you and your family." },
+          { ico: "doc",         b: "End of Life Care",                           t: "Compassionate guidance for patients and families, helping navigate difficult decisions around food and feeding with honesty, sensitivity, and care." },
+          { ico: "refresh",     b: "Post-Cancer Rehabilitation",                 t: "Nutrition support does not stop when treatment ends. This phase focuses on rebuilding strength, restoring energy, and supporting long-term health and recovery." }
         ]
       },
       {
@@ -157,7 +167,7 @@ export const SERVICES = {
         highlight: true,
         rows: [
           { ico: "digitalplan", b: "Your Custom Digital Plan",  t: "You will receive a comprehensive, easily accessible Digital Care Plan that updates as your treatment evolves — avoiding the clutter of paper records." },
-          { ico: "whatsapp",    b: "Constant WhatsApp Support", t: "Cancer doesn't work on a schedule. You and your caregivers will have direct, priority WhatsApp access to me for real-time guidance, reassurance, and quick adjustments." }
+          { ico: "whatsapp",    b: "Constant WhatsApp Support", t: "Cancer does not work on a schedule. You and your caregivers will have direct, priority WhatsApp access to me for real-time guidance, reassurance, and quick adjustments." }
         ]
       }
     ]
@@ -193,5 +203,5 @@ export const SERVICES = {
 };
 
 /* To show hidden services, move keys back into VISIBLE_SERVICES */
-export const VISIBLE_SERVICES = ['initial', 'followup', 'group', 'corporate', 'oncology'];
+export const VISIBLE_SERVICES = ['initial', 'followup', 'oncology'];
 export const SERVICE_ORDER    = VISIBLE_SERVICES;

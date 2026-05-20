@@ -1,11 +1,12 @@
 import { SERVICES } from '../data/services.js';
 import { COUNTRIES } from '../data/countries.js';
 import { ICONS } from './icons.js';
-import { state, fmtPrice, priceMeta, priceLbl, gateway } from './state.js';
+import { state, fmtPrice, fmtINR, fmtUSD, priceMeta, priceLbl, gateway } from './state.js';
 import { initiatePayment } from './razorpay.js';
 
 let currentDrawerKey = null;
 let drawerPhoneCountry = 'US';
+let currentSubPlan = null;
 
 // ── Country dropdown ──────────────────────────────────────────────────
 
@@ -156,13 +157,47 @@ function renderDrawer(key) {
   if (!s) return;
   currentDrawerKey = key;
 
-  const c = state.currency;
-  const priceStr = fmtPrice(s, c);
-  const meta     = priceMeta(s, c);
-  const lbl      = priceLbl(s, c);
-  const gw       = gateway(c);
-  const isINR    = c === 'INR';
-  const isOnc    = !!s.oncology;
+  const c     = state.currency;
+  const gw    = gateway(c);
+  const isINR = c === 'INR';
+  const isOnc = !!s.oncology;
+
+  // Sub-plan setup (oncology)
+  let activeSubPlan = null;
+  if (s.subPlans) {
+    if (!currentSubPlan || !s.subPlans.find(p => p.key === currentSubPlan)) {
+      currentSubPlan = s.defaultSubPlan || s.subPlans[0].key;
+    }
+    activeSubPlan = s.subPlans.find(p => p.key === currentSubPlan);
+  }
+
+  // Price — use sub-plan price for oncology, otherwise service default
+  let priceStr, meta, activeRawPrice;
+  if (activeSubPlan) {
+    activeRawPrice = isINR ? activeSubPlan.inr : activeSubPlan.usd;
+    priceStr = isINR ? fmtINR(activeRawPrice) : fmtUSD(activeRawPrice);
+    meta = activeSubPlan.label;
+  } else {
+    priceStr = fmtPrice(s, c);
+    meta     = priceMeta(s, c);
+    activeRawPrice = isINR ? s.inr.price : s.usd.price;
+  }
+  const lbl = priceLbl(s, c);
+
+  // Sub-plan selector HTML (oncology only)
+  const subPlanSelectorHtml = s.subPlans ? `
+    <div class="field">
+      <label>Choose Your Plan</label>
+      <select class="sub-plan-select" id="oncSubPlan">
+        ${s.subPlans.map(sp => {
+          const p = isINR ? sp.inr : sp.usd;
+          const sym = isINR ? '₹' : '$';
+          const fmt = isINR ? p.toLocaleString('en-IN') : p.toLocaleString('en-US');
+          return `<option value="${sp.key}"${sp.key === currentSubPlan ? ' selected' : ''}>${sp.label} — ${sym}${fmt}</option>`;
+        }).join('')}
+      </select>
+    </div>
+    <p class="sub-plan-desc" id="subPlanDesc">${activeSubPlan?.desc || ''}</p>` : '';
 
   if (isINR) drawerPhoneCountry = 'IN';
 
@@ -191,7 +226,7 @@ function renderDrawer(key) {
     : `Pay ${priceStr} via ${gw}`;
 
   const payBtnHtml = isINR ? `
-    <button class="pay-btn" id="payBtn" data-price="${priceStr}" data-gw="${gw}" data-paylabel="${s.payLabel || ''}">
+    <button class="pay-btn" id="payBtn" data-price="${priceStr}" data-gw="${gw}" data-amount="${activeRawPrice}" data-paylabel="${s.payLabel || ''}">
       <span>${payBtnText}</span>
       <span class="sm">SECURE →</span>
     </button>` : `
@@ -275,9 +310,10 @@ function renderDrawer(key) {
         </span>
       </div>
       <div class="checkout-body">
+        ${subPlanSelectorHtml}
         <div class="field">
-          <label>Amount *</label>
-          <input type="text" value="${priceStr}" readonly style="background:#F6F8F4;font-family:'Playfair Display',Georgia,serif;font-size:20px;color:var(--ink);font-weight:500;" />
+          <label>Amount</label>
+          <input type="text" id="amountField" value="${priceStr}" readonly style="background:#F6F8F4;font-family:'Playfair Display',Georgia,serif;font-size:20px;color:var(--ink);font-weight:500;" />
         </div>
         ${formFields}
         ${payBtnHtml}
@@ -308,6 +344,7 @@ function renderDrawer(key) {
   // Bind interactions
   bindCountryDropdown();
   bindPhoneValidation();
+  bindSubPlanDropdown(s);
   bindPayBtn();
 
   // Floating pay button (INR only — shown when #payBtn is scrolled out of view)
@@ -338,6 +375,46 @@ function renderDrawer(key) {
       obs.observe(payBtn);
     }
   }
+}
+
+function bindSubPlanDropdown(s) {
+  const sel = document.getElementById('oncSubPlan');
+  if (!sel || !s.subPlans) return;
+
+  sel.addEventListener('change', () => {
+    currentSubPlan = sel.value;
+    const sp = s.subPlans.find(p => p.key === currentSubPlan);
+    if (!sp) return;
+
+    const isINR = state.currency === 'INR';
+    const rawPrice = isINR ? sp.inr : sp.usd;
+    const newPriceStr = isINR ? fmtINR(rawPrice) : fmtUSD(rawPrice);
+
+    // Update amount field
+    const amountInput = document.getElementById('amountField');
+    if (amountInput) amountInput.value = newPriceStr;
+
+    // Update sub-plan description
+    const descEl = document.getElementById('subPlanDesc');
+    if (descEl) descEl.textContent = sp.desc || '';
+
+    // Update pay button text and data-amount
+    const payBtn = document.getElementById('payBtn');
+    if (payBtn) {
+      payBtn.dataset.amount = String(rawPrice);
+      const btnSpan = payBtn.querySelector('span:first-child');
+      const payLabel = payBtn.dataset.paylabel;
+      if (btnSpan) {
+        btnSpan.textContent = payLabel
+          ? `${payLabel} (Pay ${newPriceStr})`
+          : `Pay ${newPriceStr} via Razorpay`;
+      }
+    }
+
+    // Update float button text
+    const floatSpan = document.querySelector('#floatPayBtn span:first-child');
+    if (floatSpan) floatSpan.textContent = 'Proceed to Payment';
+  });
 }
 
 function bindPayMethods() {
@@ -386,7 +463,7 @@ function bindPayBtn() {
 
     /* ── INR → Razorpay ── */
     if (cur === 'INR') {
-      const amount = s.inr.price;
+      const amount = parseInt(btn.dataset.amount, 10) || s.inr.price;
       const origText = btn.innerHTML;
 
       btn.disabled = true;
@@ -617,6 +694,7 @@ function showError(msg) {
 // ── Open / close ──────────────────────────────────────────────────────
 
 export function openDrawer(key = 'initial') {
+  currentSubPlan = null;
   renderDrawer(key);
   document.getElementById('scrim').classList.add('open');
   const drawer = document.getElementById('drawer');
