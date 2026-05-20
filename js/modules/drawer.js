@@ -359,14 +359,13 @@ function renderDrawer(key) {
     floatEl.className = 'drawer-float hidden';
     floatEl.innerHTML = `
       <button class="pay-btn float-pay-btn" id="floatPayBtn">
-        <span>Proceed to Payment</span>
-        <span class="sm">SECURE →</span>
+        <span>Book Now</span>
       </button>`;
     document.getElementById('drawer').appendChild(floatEl);
 
-    // Delegate click to main payBtn
+    // Scroll to checkout section — does not trigger payment
     document.getElementById('floatPayBtn')?.addEventListener('click', () => {
-      document.getElementById('payBtn')?.click();
+      document.getElementById('payBtn')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 
     // Show/hide via IntersectionObserver

@@ -136,7 +136,7 @@ export const SERVICES = {
     pill: "Cancer Care",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
     oncology: true,
-    ctaLabel: "View More About the Plan",
+    ctaLabel: "Know more",
     payLabel: "Begin Your Care Journey",
     imgClass: "sage",
     photo: "assets/portrait-coat.jpg",
