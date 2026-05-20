@@ -115,7 +115,8 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .field input:focus { outline: none; border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(19,122,72,.12); }
-.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; box-sizing: border-box; }
+.checkout-body .field { width: 100%; box-sizing: border-box; }
 
 /* Payment methods */
 .pay-methods { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 0 6px; }
@@ -146,6 +147,37 @@
 .pay-btn:hover { background: var(--emerald-deep); }
 .pay-btn .sm { font-weight: 500; opacity: .8; font-size: 12px; letter-spacing: .06em; }
 .pay-btn .gateway { display: block; font-size: 11px; opacity: .75; font-weight: 500; letter-spacing: .04em; margin-top: 2px; }
+
+/* Coming soon button (international) */
+.pay-btn.coming-soon-btn {
+  background: var(--canvas-sage);
+  color: var(--ink-3);
+  cursor: not-allowed;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1.5px dashed var(--line-2);
+  opacity: .85;
+}
+.pay-btn.coming-soon-btn:hover { background: var(--canvas-sage); transform: none; }
+
+/* Floating pay button */
+.drawer-float {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 32px 24px;
+  background: linear-gradient(to top, var(--canvas) 60%, transparent);
+  pointer-events: auto;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 5;
+}
+.drawer-float.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+.drawer-float .float-pay-btn { margin-top: 0; box-shadow: 0 8px 24px -8px rgba(19,122,72,.45); }
 
 /* Misc drawer notes */
 .legal { text-align: center; font-size: 11.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.6; }

@@ -85,8 +85,9 @@ function pickCountry(code, flag, dial) {
   });
   document.getElementById('ccDropdown')?.classList.remove('open');
 
-  /* Auto-switch currency: India → INR, anywhere else → USD */
-  const targetCurrency = code === 'IN' ? 'INR' : 'USD';
+  /* Only auto-switch INR → USD when user picks a non-Indian number.
+     Never force back to INR if user is already in international (USD) mode. */
+  const targetCurrency = (state.currency === 'INR' && code !== 'IN') ? 'USD' : state.currency;
   if (state.currency !== targetCurrency && currentDrawerKey) {
     /* Save filled-in values so re-render doesn't wipe them */
     const body = document.querySelector('.checkout-body');
@@ -164,7 +165,6 @@ function renderDrawer(key) {
   const isOnc    = !!s.oncology;
 
   if (isINR) drawerPhoneCountry = 'IN';
-  else if (drawerPhoneCountry === 'IN') drawerPhoneCountry = 'US';
 
   document.getElementById('drawerCrumb').textContent = s.crumb;
   document.getElementById('drawer').classList.toggle('oncology-mode', isOnc);
@@ -190,6 +190,15 @@ function renderDrawer(key) {
     ? `${s.payLabel} (Pay ${priceStr})`
     : `Pay ${priceStr} via ${gw}`;
 
+  const payBtnHtml = isINR ? `
+    <button class="pay-btn" id="payBtn" data-price="${priceStr}" data-gw="${gw}" data-paylabel="${s.payLabel || ''}">
+      <span>${payBtnText}</span>
+      <span class="sm">SECURE →</span>
+    </button>` : `
+    <button class="pay-btn coming-soon-btn" disabled>
+      <span>We are coming soon for international health-goal setters!</span>
+    </button>`;
+
   const formFields = isOnc ? `
     <div class="row-2">
       <div class="field">
@@ -212,11 +221,7 @@ function renderDrawer(key) {
         <input type="tel" placeholder="${isINR ? '98xxx xxxxx' : '(555) 123-4567'}" autocomplete="tel" />
       </div>
     </div>` : `
-    <div class="field">
-      <label>Email *</label>
-      <input type="email" placeholder="you@email.com" autocomplete="email" />
-    </div>
-    <div class="row-2">
+    <div class="row-2 row-2-equal">
       <div class="field">
         <label>Full name *</label>
         <input type="text" placeholder="Your name" autocomplete="name" />
@@ -228,6 +233,10 @@ function renderDrawer(key) {
           <input type="tel" placeholder="${isINR ? '98xxx xxxxx' : '(555) 123-4567'}" autocomplete="tel" />
         </div>
       </div>
+    </div>
+    <div class="field">
+      <label>Email *</label>
+      <input type="email" placeholder="you@email.com" autocomplete="email" />
     </div>`;
 
   const payMethods = isINR
@@ -250,14 +259,6 @@ function renderDrawer(key) {
     </div>
     <p class="lede" style="margin-top:18px;${isOnc ? 'font-size:17px;line-height:1.65;' : ''}">${s.lede}</p>
 
-    <div class="price-card">
-      <div>
-        <div class="big">${priceStr}<span style="font-size:14px;color:var(--ink-3);font-family:'Plus Jakarta Sans',sans-serif;"> · ${meta}</span></div>
-        <div class="lbl">${lbl}</div>
-      </div>
-      <span class="pill">${s.pill}</span>
-    </div>
-
     <p style="margin-top:28px;color:var(--ink-2);font-size:${isOnc ? '16px' : '15px'};line-height:1.7;">${s.intro}</p>
 
     ${sectionsHtml}
@@ -279,13 +280,7 @@ function renderDrawer(key) {
           <input type="text" value="${priceStr}" readonly style="background:#F6F8F4;font-family:'Playfair Display',Georgia,serif;font-size:20px;color:var(--ink);font-weight:500;" />
         </div>
         ${formFields}
-        <div class="pay-methods" role="radiogroup" aria-label="Payment method">
-          ${payMethods}
-        </div>
-        <button class="pay-btn" id="payBtn" data-price="${priceStr}" data-gw="${gw}" data-paylabel="${s.payLabel || ''}">
-          <span>${payBtnText}</span>
-          <span class="sm">SECURE →</span>
-        </button>
+        ${payBtnHtml}
         ${isINR ? `
           <div class="gst-note">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
@@ -313,8 +308,36 @@ function renderDrawer(key) {
   // Bind interactions
   bindCountryDropdown();
   bindPhoneValidation();
-  bindPayMethods();
   bindPayBtn();
+
+  // Floating pay button (INR only — shown when #payBtn is scrolled out of view)
+  document.getElementById('drawerFloat')?.remove();
+  if (isINR) {
+    const floatEl = document.createElement('div');
+    floatEl.id = 'drawerFloat';
+    floatEl.className = 'drawer-float hidden';
+    floatEl.innerHTML = `
+      <button class="pay-btn float-pay-btn" id="floatPayBtn">
+        <span>Proceed to Payment</span>
+        <span class="sm">SECURE →</span>
+      </button>`;
+    document.getElementById('drawer').appendChild(floatEl);
+
+    // Delegate click to main payBtn
+    document.getElementById('floatPayBtn')?.addEventListener('click', () => {
+      document.getElementById('payBtn')?.click();
+    });
+
+    // Show/hide via IntersectionObserver
+    const payBtn = document.getElementById('payBtn');
+    const drawer = document.getElementById('drawer');
+    if (payBtn && drawer) {
+      const obs = new IntersectionObserver((entries) => {
+        floatEl.classList.toggle('hidden', entries[0].isIntersecting);
+      }, { root: drawer, threshold: 0.1 });
+      obs.observe(payBtn);
+    }
+  }
 }
 
 function bindPayMethods() {
