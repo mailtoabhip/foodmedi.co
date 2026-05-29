@@ -535,25 +535,24 @@ function bindPayBtn() {
       });
 
     } else {
-      /* USD → PayPal */
+      /* USD → PayPal popup */
       const amount   = parseFloat(btn.dataset.amount) || s.usd.price;
       const origText = btn.innerHTML;
 
       btn.disabled  = true;
-      btn.innerHTML = '<span>Redirecting to PayPal…</span>';
+      btn.innerHTML = '<span>Opening PayPal…</span>';
 
       const dialCode  = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
       const fullPhone = dialCode ? `${dialCode} ${phone}` : phone;
 
-      /* Store form data in sessionStorage so we can retrieve it after PayPal redirect */
-      sessionStorage.setItem('paypal_pending', JSON.stringify({
+      const pending = {
         name, email, phone: fullPhone,
         service_key: currentDrawerKey,
-        amount,
-        currency: 'USD',
+        amount, currency: 'USD',
         calendlyUrl: s.calendlyUrl || '',
         serviceName: s.name,
-      }));
+      };
+      sessionStorage.setItem('paypal_pending', JSON.stringify(pending));
 
       try {
         const res = await fetch('/api/create-paypal-order', {
@@ -563,7 +562,27 @@ function bindPayBtn() {
         });
         const data = await res.json();
         if (!data.approvalUrl) throw new Error(data.error || 'No PayPal approval URL received');
-        window.location.href = data.approvalUrl;
+
+        /* Open PayPal in a centred popup window */
+        const pw = 560, ph = 720;
+        const pl = Math.round((screen.width  - pw) / 2);
+        const pt = Math.round((screen.height - ph) / 2);
+        const popup = window.open(
+          data.approvalUrl,
+          'paypal_checkout',
+          `width=${pw},height=${ph},top=${pt},left=${pl},toolbar=no,menubar=no,scrollbars=yes`
+        );
+
+        btn.disabled  = false;
+        btn.innerHTML = origText;
+
+        if (!popup || popup.closed) {
+          /* Popup blocked — fall back to full redirect */
+          window.location.href = data.approvalUrl;
+          return;
+        }
+
+        showPayPalWaiting(pending, popup);
       } catch (err) {
         btn.disabled  = false;
         btn.innerHTML = origText;
@@ -573,6 +592,107 @@ function bindPayBtn() {
       return;
     }
   });
+}
+
+/* ── PayPal popup overlays ───────────────────────────────────────────── */
+
+function showPayPalWaiting(stored, popup) {
+  document.getElementById('paypalStatusOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'paypalStatusOverlay';
+  overlay.className = 'paypal-status-overlay';
+  overlay.innerHTML = `
+    <div class="paypal-status-card">
+      <div class="paypal-spinner"></div>
+      <h3>Complete Your Payment</h3>
+      <p>Please complete your payment in the PayPal window. This page will update automatically once your payment is confirmed.</p>
+      <div class="paypal-status-tag">Waiting for payment…</div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  function onMessage(e) {
+    if (e.data?.type === 'PAYPAL_SUCCESS') {
+      cleanup(); overlay.remove();
+      handlePayPalCapture(e.data.token, stored);
+    } else if (e.data?.type === 'PAYPAL_CANCEL') {
+      cleanup(); overlay.remove();
+      showPayPalFailed(stored);
+    }
+  }
+
+  const poll = setInterval(() => {
+    if (popup.closed) { cleanup(); overlay.remove(); showPayPalFailed(stored); }
+  }, 800);
+
+  function cleanup() { clearInterval(poll); window.removeEventListener('message', onMessage); }
+  window.addEventListener('message', onMessage);
+}
+
+export function showPayPalFailed(stored) {
+  document.getElementById('paypalStatusOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'paypalStatusOverlay';
+  overlay.className = 'paypal-status-overlay';
+  overlay.innerHTML = `
+    <div class="paypal-status-card failed">
+      <div class="paypal-fail-icon">
+        <svg viewBox="0 0 88 88" fill="none">
+          <circle cx="44" cy="44" r="39" stroke="#e53e3e" stroke-width="3"/>
+          <path d="M29 29l30 30M59 29L29 59" stroke="#e53e3e" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Transaction Could Not Be Completed</h3>
+      <p>Your transaction could not be completed. This may be due to a PayPal issue, a payment decline, or the process was cancelled.</p>
+      <div class="paypal-fail-actions">
+        <button class="btn" id="paypalTryAgain">Try Again</button>
+        <a href="/" class="btn btn-ghost">Back to Homepage</a>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('paypalTryAgain')?.addEventListener('click', () => {
+    overlay.remove();
+    sessionStorage.removeItem('paypal_pending');
+    if (stored?.service_key) openDrawer(stored.service_key);
+  });
+}
+
+export async function handlePayPalCapture(orderID, stored) {
+  try {
+    const captureRes = await fetch('/api/capture-paypal-order', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ orderID }),
+    });
+    const captureData = await captureRes.json();
+    if (captureData.status !== 'COMPLETED') throw new Error('Status: ' + captureData.status);
+
+    const paymentId = captureData.purchase_units?.[0]?.payments?.captures?.[0]?.id || orderID;
+
+    fetch('/api/send-confirmation', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        razorpay_payment_id: paymentId,
+        razorpay_order_id:   orderID,
+        razorpay_signature:  '',
+        service_key:         stored.service_key,
+        amount:              stored.amount,
+        currency:            'USD',
+        customer_name:       stored.name,
+        customer_email:      stored.email,
+        customer_phone:      stored.phone,
+      }),
+    }).catch(err => console.error('[paypal email]', err));
+
+    sessionStorage.removeItem('paypal_pending');
+    showSuccess(stored.serviceName, paymentId, stored.calendlyUrl, stored.name, stored.email);
+  } catch (err) {
+    console.error('[paypal capture]', err);
+    showPayPalFailed(stored);
+  }
 }
 
 function openCalendly(url, name, email) {

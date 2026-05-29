@@ -185,6 +185,44 @@
 .spc-desc { font-size: 13px; color: var(--ink-3); margin-top: 8px; line-height: 1.55; margin-bottom: 0; }
 .sub-plan-card.active .spc-desc { color: var(--emerald-deep); opacity: .75; }
 
+/* PayPal status overlays (waiting + failed) */
+.paypal-status-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.paypal-status-card {
+  background: #fff; border-radius: 24px;
+  padding: 48px 40px; max-width: 440px; width: 100%;
+  text-align: center;
+  box-shadow: 0 32px 80px -16px rgba(0,0,0,.35);
+  animation: fadeSlideUp .35s ease;
+}
+.paypal-status-card h3 { font-size: 22px; color: var(--ink); margin-bottom: 14px; }
+.paypal-status-card p  { color: var(--ink-2); font-size: 15px; line-height: 1.65; margin-bottom: 28px; }
+.paypal-status-card.failed h3 { color: #c53030; }
+
+.paypal-spinner {
+  width: 56px; height: 56px;
+  border: 3px solid var(--line-2);
+  border-top-color: var(--emerald);
+  border-radius: 50%;
+  animation: ppSpin 1s linear infinite;
+  margin: 0 auto 28px;
+}
+@keyframes ppSpin { to { transform: rotate(360deg); } }
+
+.paypal-status-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.paypal-fail-icon { width: 72px; height: 72px; margin: 0 auto 24px; }
+.paypal-fail-icon svg { width: 100%; height: 100%; }
+.paypal-fail-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
 /* Coming soon button (international) */
 .pay-btn.coming-soon-btn {
   background: var(--canvas-sage);
