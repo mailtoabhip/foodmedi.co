@@ -554,6 +554,16 @@ function bindPayBtn() {
       };
       sessionStorage.setItem('paypal_pending', JSON.stringify(pending));
 
+      /* Open blank popup SYNCHRONOUSLY (before any await) so browser allows it */
+      const pw = 560, ph = 720;
+      const pl = Math.round((screen.width  - pw) / 2);
+      const pt = Math.round((screen.height - ph) / 2);
+      const popup = window.open(
+        'about:blank',
+        'paypal_checkout',
+        `width=${pw},height=${ph},top=${pt},left=${pl},toolbar=no,menubar=no,scrollbars=yes`
+      );
+
       try {
         const res = await fetch('/api/create-paypal-order', {
           method:  'POST',
@@ -563,27 +573,20 @@ function bindPayBtn() {
         const data = await res.json();
         if (!data.approvalUrl) throw new Error(data.error || 'No PayPal approval URL received');
 
-        /* Open PayPal in a centred popup window */
-        const pw = 560, ph = 720;
-        const pl = Math.round((screen.width  - pw) / 2);
-        const pt = Math.round((screen.height - ph) / 2);
-        const popup = window.open(
-          data.approvalUrl,
-          'paypal_checkout',
-          `width=${pw},height=${ph},top=${pt},left=${pl},toolbar=no,menubar=no,scrollbars=yes`
-        );
-
         btn.disabled  = false;
         btn.innerHTML = origText;
 
         if (!popup || popup.closed) {
-          /* Popup blocked — fall back to full redirect */
+          /* Popup was blocked — fall back to full redirect */
           window.location.href = data.approvalUrl;
           return;
         }
 
+        /* Navigate the already-open popup to PayPal */
+        popup.location.href = data.approvalUrl;
         showPayPalWaiting(pending, popup);
       } catch (err) {
+        popup?.close();
         btn.disabled  = false;
         btn.innerHTML = origText;
         sessionStorage.removeItem('paypal_pending');
