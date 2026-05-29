@@ -155,16 +155,20 @@ function bindCountryDropdown() {
     const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
     const panelW = 280, panelH = 340;
 
-    /* Move into portal (position:fixed context outside any transform) */
+    /* Move into portal (outside the drawer's transform stacking context) */
     portal.appendChild(panel);
     panel.style.pointerEvents = 'auto';
 
-    /* Right-align with phone row, open below trigger */
-    let left = rowRect.right - panelW;
-    let top  = rect.bottom + 6;
+    /* Match width to phone row; open directly below; right-align with row */
+    const rowW  = rowRect.width || panelW;
+    const useW  = Math.max(rowW, 240);
+    panel.style.width = `${useW}px`;
+
+    let left = rowRect.right - useW;
+    let top  = rowRect.bottom + 4;
     if (left < 8) left = 8;
-    if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
-    if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
+    if (left + useW > window.innerWidth - 8) left = window.innerWidth - useW - 8;
+    if (top + panelH > window.innerHeight - 8) top = rowRect.top - panelH - 4;
     if (top < 8) top = 8;
 
     panel.style.left = `${left}px`;
@@ -183,8 +187,9 @@ function bindCountryDropdown() {
     setTimeout(() => {
       if (panel && portal.contains(panel)) {
         panel.style.pointerEvents = '';
-        panel.style.left = '';
-        panel.style.top  = '';
+        panel.style.width = '';
+        panel.style.left  = '';
+        panel.style.top   = '';
         dd.appendChild(panel);
       }
     }, 220);
@@ -456,6 +461,10 @@ function renderDrawer(key) {
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Wallet</div>`
     : `<div class="pm active" role="radio" aria-checked="true"><span class="dot-r"></span> International Card</div>
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Visa / Mastercard / Amex</div>`;
+
+  /* Clean up any panel orphaned in the portal from a previous drawer render */
+  const _portal = document.getElementById('ccPanelPortal');
+  if (_portal) _portal.innerHTML = '';
 
   document.getElementById('drawerBody').innerHTML = `
     <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;">
