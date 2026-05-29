@@ -127,43 +127,22 @@ function renderCountryDropdown(activeCode, locked) {
 
 let _closeCcPanel = null;
 
-/* Body-level portal — created once, reused, escapes all transform contexts */
-function getCcPortal() {
-  let p = document.getElementById('ccPanelPortal');
-  if (!p) {
-    p = document.createElement('div');
-    p.id = 'ccPanelPortal';
-    p.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:visible;';
-    document.body.appendChild(p);
-  }
-  return p;
-}
-
 function bindCountryDropdown() {
   const dd = document.getElementById('ccDropdown');
   if (!dd) return;
 
-  const panel    = dd.querySelector('.cc-panel');
-  const portal   = getCcPortal();
+  const panel = dd.querySelector('.cc-panel');
 
-  function openPanel(triggerEl) {
-    if (!panel) return;
-
-    /* Use the actual clicked element for accurate viewport rect */
+  function positionAndOpen(triggerEl) {
     const rect     = triggerEl.getBoundingClientRect();
     const phoneRow = triggerEl.closest('.phone-row');
     const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
-    const panelW = 280, panelH = 340;
+    const panelH   = 340;
+    const useW     = Math.max(rowRect.width || 280, 240);
 
-    /* Move into portal (outside the drawer's transform stacking context) */
-    portal.appendChild(panel);
-    panel.style.pointerEvents = 'auto';
-
-    /* Match width to phone row; open directly below; right-align with row */
-    const rowW  = rowRect.width || panelW;
-    const useW  = Math.max(rowW, 240);
     panel.style.width = `${useW}px`;
 
+    /* Open below the phone row, right-aligned */
     let left = rowRect.right - useW;
     let top  = rowRect.bottom + 4;
     if (left < 8) left = 8;
@@ -175,48 +154,37 @@ function bindCountryDropdown() {
     panel.style.top  = `${top}px`;
 
     dd.classList.add('open');
-    panel.classList.add('cc-panel-open');
-
-    const s = panel.querySelector('input[type="text"]');
+    const s = document.getElementById('ccSearch');
     if (s) { s.value = ''; filterCountries(''); s.focus(); }
   }
 
-  function closePanel() {
+  function closeDropdown() {
     dd.classList.remove('open');
-    panel?.classList.remove('cc-panel-open');
-    setTimeout(() => {
-      if (panel && portal.contains(panel)) {
-        panel.style.pointerEvents = '';
-        panel.style.width = '';
-        panel.style.left  = '';
-        panel.style.top   = '';
-        dd.appendChild(panel);
-      }
-    }, 220);
+    panel.style.width = '';
+    panel.style.left  = '';
+    panel.style.top   = '';
   }
 
-  _closeCcPanel = closePanel;
+  _closeCcPanel = closeDropdown;
 
   document.getElementById('ccTrigger')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    dd.classList.contains('open') ? closePanel() : openPanel(e.currentTarget);
+    dd.classList.contains('open') ? closeDropdown() : positionAndOpen(e.currentTarget);
   });
 
-  /* Bind search & list on the panel element (works even when moved to portal) */
-  panel?.querySelector('input[type="text"]')?.addEventListener('input', (e) => filterCountries(e.target.value));
-  panel?.querySelector('input[type="text"]')?.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
-  panel?.querySelector('.cc-list')?.addEventListener('click', (e) => {
+  document.getElementById('ccSearch')?.addEventListener('input',   (e) => filterCountries(e.target.value));
+  document.getElementById('ccSearch')?.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDropdown(); });
+
+  document.getElementById('ccList')?.addEventListener('click', (e) => {
     const item = e.target.closest('.cc-item');
     if (!item) return;
     pickCountry(item.dataset.code, item.querySelector('.emoji').textContent, item.dataset.dial);
-    closePanel();
+    closeDropdown();
   });
 
   /* Close on any outside click */
   document.addEventListener('click', (e) => {
-    if (dd.classList.contains('open') && !dd.contains(e.target) && !panel?.contains(e.target)) {
-      closePanel();
-    }
+    if (dd.classList.contains('open') && !dd.contains(e.target)) closeDropdown();
   });
 }
 
@@ -461,10 +429,6 @@ function renderDrawer(key) {
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Wallet</div>`
     : `<div class="pm active" role="radio" aria-checked="true"><span class="dot-r"></span> International Card</div>
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Visa / Mastercard / Amex</div>`;
-
-  /* Clean up any panel orphaned in the portal from a previous drawer render */
-  const _portal = document.getElementById('ccPanelPortal');
-  if (_portal) _portal.innerHTML = '';
 
   document.getElementById('drawerBody').innerHTML = `
     <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;">
