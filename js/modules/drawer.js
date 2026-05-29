@@ -8,6 +8,29 @@ let currentDrawerKey = null;
 let drawerPhoneCountry = 'US';
 let currentSubPlan = null;
 
+// ── Phone format by country ───────────────────────────────────────────
+const PHONE_FORMATS = {
+  IN:'98765 43210',   US:'(555) 123-4567', CA:'(555) 123-4567',
+  GB:'07700 900000',  AU:'0400 000 000',   NZ:'021 123 4567',
+  AE:'050 123 4567',  SA:'050 123 4567',   QA:'3312 3456',
+  KW:'5000 0000',     BH:'3600 0000',      OM:'9200 0000',
+  SG:'8123 4567',     MY:'012-345 6789',   HK:'6123 4567',
+  JP:'090-1234-5678', KR:'010-1234-5678',  CN:'138 0013 8000',
+  PK:'0300 1234567',  BD:'01711-123456',   LK:'071 123 4567',
+  NP:'9841 123456',
+  DE:'0151 23456789', FR:'06 12 34 56 78', IT:'320 123 4567',
+  ES:'612 345 678',   NL:'06 12345678',    CH:'076 123 45 67',
+  AT:'0664 123456',   SE:'070-123 45 67',  NO:'406 12 345',
+  DK:'20 12 34 56',   FI:'040 123 4567',   PL:'512 345 678',
+  PT:'912 345 678',   IE:'083 123 4567',
+  ZA:'071 123 4567',  NG:'0803 123 4567',  KE:'0712 345678',
+  GH:'024 123 4567',  ET:'091 123 4567',
+  BR:'(11) 91234-5678',MX:'55 1234 5678',  AR:'11 1234-5678',
+  CO:'310 123 4567',  CL:'9 1234 5678',
+};
+
+function phoneFormat(code) { return PHONE_FORMATS[code] || 'Enter phone number'; }
+
 // ── Country dropdown ──────────────────────────────────────────────────
 
 function renderCountryDropdown(activeCode, locked) {
@@ -85,6 +108,10 @@ function pickCountry(code, flag, dial) {
     it.classList.toggle('active', it.dataset.code === code);
   });
   document.getElementById('ccDropdown')?.classList.remove('open');
+
+  // Update phone placeholder to match country format
+  const phoneInput = document.querySelector('#drawerBody input[type="tel"]');
+  if (phoneInput) phoneInput.placeholder = phoneFormat(code);
 
   /* Only auto-switch INR → USD when user picks a non-Indian number.
      Never force back to INR if user is already in international (USD) mode. */
@@ -353,9 +380,9 @@ function renderDrawer(key) {
   bindSubPlanCards(s);
   bindPayBtn();
 
-  // Floating pay button (INR only, shown when #payBtn is scrolled out of view)
+  // Floating Book Now button — shown when #payBtn is scrolled out of view
   document.getElementById('drawerFloat')?.remove();
-  if (isINR) {
+  {
     const floatEl = document.createElement('div');
     floatEl.id = 'drawerFloat';
     floatEl.className = 'drawer-float hidden';

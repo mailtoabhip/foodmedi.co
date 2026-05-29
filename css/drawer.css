@@ -116,6 +116,9 @@
 }
 .field input:focus { outline: none; border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(19,122,72,.12); }
 .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; box-sizing: border-box; }
+.row-2 > * { min-width: 0; }
+.row-2 .phone-row { width: 100%; }
+.row-2 .phone-row input { min-width: 0; width: 0; flex: 1; }
 .checkout-body .field { width: 100%; box-sizing: border-box; }
 
 /* Payment methods */
