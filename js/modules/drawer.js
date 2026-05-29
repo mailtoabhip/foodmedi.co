@@ -125,54 +125,88 @@ function renderCountryDropdown(activeCode, locked) {
     </div>`;
 }
 
+let _closeCcPanel = null; /* accessible to pickCountry */
+
 function bindCountryDropdown() {
   const dd = document.getElementById('ccDropdown');
   if (!dd) return;
 
+  let panel = dd.querySelector('.cc-panel');
+  let movedToBody = false;
+
+  function positionPanel() {
+    const trigger  = document.getElementById('ccTrigger');
+    if (!trigger || !panel) return;
+    const rect     = trigger.getBoundingClientRect();
+    const phoneRow = trigger.closest('.phone-row');
+    const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
+    const panelW   = 280, panelH = 340;
+
+    /* Move panel to body to escape the drawer's transform stacking context */
+    if (!movedToBody) {
+      document.body.appendChild(panel);
+      movedToBody = true;
+    }
+    panel.style.position = 'fixed';
+
+    /* Right-align with the right edge of the phone row */
+    let left = rowRect.right - panelW;
+    let top  = rect.bottom + 6;
+    if (left < 8) left = 8;
+    if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
+    if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
+    if (top < 8) top = 8;
+    panel.style.left = `${left}px`;
+    panel.style.top  = `${top}px`;
+  }
+
+  function openPanel() {
+    positionPanel();
+    dd.classList.add('open');
+    panel?.classList.add('cc-panel-open');
+    const s = document.getElementById('ccSearch');
+    if (s) { s.value = ''; filterCountries(''); s.focus(); }
+  }
+
+  function closePanel() {
+    dd.classList.remove('open');
+    panel?.classList.remove('cc-panel-open');
+    /* Move panel back to dd after CSS transition */
+    setTimeout(() => {
+      if (panel && movedToBody && !dd.classList.contains('open')) {
+        dd.appendChild(panel);
+        movedToBody = false;
+        panel.style.position = '';
+        panel.style.left = '';
+        panel.style.top  = '';
+      }
+    }, 220);
+  }
+
+  _closeCcPanel = closePanel;
+
   document.getElementById('ccTrigger')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    const wasOpen = dd.classList.contains('open');
-    const panel   = dd.querySelector('.cc-panel');
-
-    if (!wasOpen && panel) {
-      /* Position the panel using fixed coords so it never affects page layout */
-      const trigger  = document.getElementById('ccTrigger');
-      const rect     = trigger.getBoundingClientRect();
-      const phoneRow = trigger.closest('.phone-row');
-      const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
-      const panelW   = 280;
-      const panelH   = 340; /* approximate height */
-
-      /* Right-align with the phone row's right edge */
-      let left = rowRect.right - panelW;
-      let top  = rect.bottom + 6;
-
-      /* Keep inside viewport */
-      if (left < 8) left = 8;
-      if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
-      /* Open upward if not enough space below */
-      if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
-
-      panel.style.left = `${left}px`;
-      panel.style.top  = `${top}px`;
-    }
-
-    dd.classList.toggle('open');
-    if (dd.classList.contains('open')) {
-      const s = document.getElementById('ccSearch');
-      if (s) { s.value = ''; filterCountries(''); s.focus(); }
-    }
+    dd.classList.contains('open') ? closePanel() : openPanel();
   });
 
   document.getElementById('ccSearch')?.addEventListener('input', (e) => filterCountries(e.target.value));
   document.getElementById('ccSearch')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') dd.classList.remove('open');
+    if (e.key === 'Escape') closePanel();
   });
 
   document.getElementById('ccList')?.addEventListener('click', (e) => {
     const item = e.target.closest('.cc-item');
     if (!item) return;
     pickCountry(item.dataset.code, item.querySelector('.emoji').textContent, item.dataset.dial);
+    closePanel();
+  });
+
+  /* Close on outside click */
+  document.addEventListener('click', (e) => {
+    if (dd.classList.contains('open') && !dd.contains(e.target) && panel && !panel.contains(e.target)) {
+      closePanel();
+    }
   });
 }
 
@@ -185,7 +219,7 @@ function pickCountry(code, flag, dial) {
   document.querySelectorAll('#ccList .cc-item').forEach(it => {
     it.classList.toggle('active', it.dataset.code === code);
   });
-  document.getElementById('ccDropdown')?.classList.remove('open');
+  _closeCcPanel?.();
 
   // Update phone format when country changes
   const phoneInput = document.querySelector('#drawerBody input[type="tel"]');

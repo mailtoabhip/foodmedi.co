@@ -299,6 +299,7 @@
   overflow: hidden;
 }
 .cc-dropdown.open .cc-panel { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.cc-panel.cc-panel-open  { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .cc-search { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
 .cc-search svg { color: var(--ink-3); flex-shrink: 0; }
