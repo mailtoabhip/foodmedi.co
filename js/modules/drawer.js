@@ -9,27 +9,79 @@ let drawerPhoneCountry = 'US';
 let currentSubPlan = null;
 
 // ── Phone format by country ───────────────────────────────────────────
-const PHONE_FORMATS = {
-  IN:'98765 43210',   US:'(555) 123-4567', CA:'(555) 123-4567',
-  GB:'07700 900000',  AU:'0400 000 000',   NZ:'021 123 4567',
-  AE:'050 123 4567',  SA:'050 123 4567',   QA:'3312 3456',
-  KW:'5000 0000',     BH:'3600 0000',      OM:'9200 0000',
-  SG:'8123 4567',     MY:'012-345 6789',   HK:'6123 4567',
-  JP:'090-1234-5678', KR:'010-1234-5678',  CN:'138 0013 8000',
-  PK:'0300 1234567',  BD:'01711-123456',   LK:'071 123 4567',
-  NP:'9841 123456',
-  DE:'0151 23456789', FR:'06 12 34 56 78', IT:'320 123 4567',
-  ES:'612 345 678',   NL:'06 12345678',    CH:'076 123 45 67',
-  AT:'0664 123456',   SE:'070-123 45 67',  NO:'406 12 345',
-  DK:'20 12 34 56',   FI:'040 123 4567',   PL:'512 345 678',
-  PT:'912 345 678',   IE:'083 123 4567',
-  ZA:'071 123 4567',  NG:'0803 123 4567',  KE:'0712 345678',
-  GH:'024 123 4567',  ET:'091 123 4567',
-  BR:'(11) 91234-5678',MX:'55 1234 5678',  AR:'11 1234-5678',
-  CO:'310 123 4567',  CL:'9 1234 5678',
+// Each entry: { mask, min, max, ph }
+// mask: '#' = digit, other chars are literals inserted automatically
+const PHONE_DATA = {
+  IN: { mask:'##### #####',       min:10, max:10, ph:'98765 43210'       },
+  US: { mask:'(###) ###-####',    min:10, max:10, ph:'(555) 123-4567'    },
+  CA: { mask:'(###) ###-####',    min:10, max:10, ph:'(604) 123-4567'    },
+  GB: { mask:'##### ######',      min:10, max:11, ph:'07700 900000'      },
+  AU: { mask:'#### ### ###',      min: 9, max:10, ph:'0400 000 000'      },
+  NZ: { mask:'### ### ####',      min: 9, max:10, ph:'021 123 4567'      },
+  AE: { mask:'### ### ####',      min: 9, max: 9, ph:'050 123 4567'      },
+  SA: { mask:'### ### ####',      min: 9, max: 9, ph:'050 123 4567'      },
+  QA: { mask:'#### ####',         min: 8, max: 8, ph:'3312 3456'         },
+  KW: { mask:'#### ####',         min: 8, max: 8, ph:'5000 0000'         },
+  BH: { mask:'#### ####',         min: 8, max: 8, ph:'3600 0000'         },
+  OM: { mask:'#### ####',         min: 8, max: 8, ph:'9200 0000'         },
+  SG: { mask:'#### ####',         min: 8, max: 8, ph:'8123 4567'         },
+  MY: { mask:'###-### ####',      min:10, max:11, ph:'012-345 6789'      },
+  HK: { mask:'#### ####',         min: 8, max: 8, ph:'6123 4567'         },
+  JP: { mask:'###-####-####',     min:10, max:11, ph:'090-1234-5678'     },
+  KR: { mask:'###-####-####',     min:10, max:11, ph:'010-1234-5678'     },
+  CN: { mask:'### #### ####',     min:11, max:11, ph:'138 0013 8000'     },
+  PK: { mask:'#### #######',      min:10, max:11, ph:'0300 1234567'      },
+  BD: { mask:'####-######',       min:10, max:11, ph:'01711-123456'      },
+  LK: { mask:'### ### ####',      min: 9, max:10, ph:'071 123 4567'      },
+  NP: { mask:'#### ######',       min: 9, max:10, ph:'9841 123456'       },
+  DE: { mask:'#### ########',     min:10, max:12, ph:'0151 23456789'     },
+  FR: { mask:'## ## ## ## ##',    min: 9, max:10, ph:'06 12 34 56 78'    },
+  IT: { mask:'### ### ####',      min: 9, max:10, ph:'320 123 4567'      },
+  ES: { mask:'### ### ###',       min: 9, max: 9, ph:'612 345 678'       },
+  NL: { mask:'## ### ####',       min: 9, max: 9, ph:'06 12345678'       },
+  CH: { mask:'### ### ## ##',     min: 9, max:10, ph:'076 123 45 67'     },
+  AT: { mask:'#### ######',       min: 9, max:11, ph:'0664 123456'       },
+  SE: { mask:'###-### ## ##',     min: 9, max:10, ph:'070-123 45 67'     },
+  NO: { mask:'### ## ###',        min: 8, max: 8, ph:'406 12 345'        },
+  DK: { mask:'## ## ## ##',       min: 8, max: 8, ph:'20 12 34 56'       },
+  FI: { mask:'### ### ####',      min: 8, max:10, ph:'040 123 4567'      },
+  PL: { mask:'### ### ###',       min: 9, max: 9, ph:'512 345 678'       },
+  PT: { mask:'### ### ###',       min: 9, max: 9, ph:'912 345 678'       },
+  IE: { mask:'### ### ####',      min: 9, max:10, ph:'083 123 4567'      },
+  ZA: { mask:'### ### ####',      min: 9, max:10, ph:'071 123 4567'      },
+  NG: { mask:'#### ### ####',     min:10, max:11, ph:'0803 123 4567'     },
+  KE: { mask:'#### ######',       min: 9, max:10, ph:'0712 345678'       },
+  GH: { mask:'### ### ####',      min: 9, max:10, ph:'024 123 4567'      },
+  BR: { mask:'(##) #####-####',   min:10, max:11, ph:'(11) 91234-5678'   },
+  MX: { mask:'## #### ####',      min:10, max:10, ph:'55 1234 5678'      },
+  AR: { mask:'## ####-####',      min:10, max:10, ph:'11 1234-5678'      },
+  CO: { mask:'### ### ####',      min:10, max:10, ph:'310 123 4567'      },
+  CL: { mask:'# #### ####',       min: 9, max: 9, ph:'9 1234 5678'       },
 };
 
-function phoneFormat(code) { return PHONE_FORMATS[code] || 'Enter phone number'; }
+function applyPhoneMask(digits, mask) {
+  let out = '', di = 0;
+  for (let i = 0; i < mask.length && di < digits.length; i++) {
+    out += mask[i] === '#' ? digits[di++] : mask[i];
+  }
+  return out;
+}
+
+function phoneFormat(code) { return PHONE_DATA[code]?.ph || 'Enter phone number'; }
+
+function showPhoneError(inp, msg) {
+  inp.style.outline = '2px solid var(--crimson)';
+  const field = inp.closest('.field');
+  if (!field) return;
+  let err = field.querySelector('.phone-err');
+  if (!err) { err = document.createElement('p'); err.className = 'phone-err'; field.appendChild(err); }
+  err.textContent = msg;
+}
+
+function clearPhoneError(inp) {
+  inp.style.outline = '';
+  inp.closest('.field')?.querySelector('.phone-err')?.remove();
+}
 
 // ── Country dropdown ──────────────────────────────────────────────────
 
@@ -109,9 +161,17 @@ function pickCountry(code, flag, dial) {
   });
   document.getElementById('ccDropdown')?.classList.remove('open');
 
-  // Update phone placeholder to match country format
+  // Update phone format when country changes
   const phoneInput = document.querySelector('#drawerBody input[type="tel"]');
-  if (phoneInput) phoneInput.placeholder = phoneFormat(code);
+  if (phoneInput) {
+    const pd = PHONE_DATA[code];
+    phoneInput.placeholder = phoneFormat(code);
+    if (pd && phoneInput.value) {
+      const digits = phoneInput.value.replace(/\D/g, '').slice(0, pd.max);
+      phoneInput.value = applyPhoneMask(digits, pd.mask);
+    }
+    clearPhoneError(phoneInput);
+  }
 
   /* Only auto-switch INR → USD when user picks a non-Indian number.
      Never force back to INR if user is already in international (USD) mode. */
@@ -166,15 +226,32 @@ function filterCountries(q) {
 function bindPhoneValidation() {
   const inp = document.querySelector('#drawerBody input[type="tel"]');
   if (!inp) return;
+
   inp.addEventListener('input', () => {
-    if (state.currency === 'INR') {
-      const cleaned = inp.value.replace(/\D/g, '').slice(0, 10);
-      if (cleaned !== inp.value) inp.value = cleaned;
-    } else {
-      const cleaned = inp.value.replace(/[^\d\s\-()]/g, '');
-      if (cleaned !== inp.value) inp.value = cleaned;
+    const pd = PHONE_DATA[drawerPhoneCountry];
+    if (!pd) return;
+    const pos   = inp.selectionStart;
+    const digits = inp.value.replace(/\D/g, '').slice(0, pd.max);
+    const masked = applyPhoneMask(digits, pd.mask);
+    if (inp.value !== masked) {
+      inp.value = masked;
+      // Keep cursor roughly in place
+      const extra = masked.length - inp.value.replace(/\D/g, '').length;
+      try { inp.setSelectionRange(pos + extra, pos + extra); } catch (_) {}
+    }
+    clearPhoneError(inp);
+  });
+
+  inp.addEventListener('blur', () => {
+    const pd = PHONE_DATA[drawerPhoneCountry];
+    if (!pd) return;
+    const digits = inp.value.replace(/\D/g, '');
+    if (digits.length > 0 && digits.length < pd.min) {
+      showPhoneError(inp, `Enter a valid ${pd.min}-digit phone number for the selected country`);
     }
   });
+
+  inp.addEventListener('focus', () => clearPhoneError(inp));
 }
 
 // ── Drawer render ─────────────────────────────────────────────────────
@@ -286,7 +363,7 @@ function renderDrawer(key) {
       <label>Phone *</label>
       <div class="phone-row">
         ${renderCountryDropdown(drawerPhoneCountry, isINR)}
-        <input type="tel" placeholder="${isINR ? '98xxx xxxxx' : '(555) 123-4567'}" autocomplete="tel" />
+        <input type="tel" placeholder="${phoneFormat(drawerPhoneCountry)}" autocomplete="tel" />
       </div>
     </div>` : `
     <div class="row-2 row-2-equal">
@@ -298,7 +375,7 @@ function renderDrawer(key) {
         <label>Phone *</label>
         <div class="phone-row">
           ${renderCountryDropdown(drawerPhoneCountry, isINR)}
-          <input type="tel" placeholder="${isINR ? '98xxx xxxxx' : '(555) 123-4567'}" autocomplete="tel" />
+          <input type="tel" placeholder="${phoneFormat(drawerPhoneCountry)}" autocomplete="tel" />
         </div>
       </div>
     </div>
@@ -482,14 +559,23 @@ function bindPayBtn() {
     const phone   = body?.querySelector('input[type="tel"]')?.value.trim() ?? '';
 
     /* ── Basic validation ── */
+    const phoneDigits = phone.replace(/\D/g, '');
+    const pd = PHONE_DATA[drawerPhoneCountry];
+    const phoneValid = phone && (!pd || phoneDigits.length >= pd.min);
     const missing = [];
     if (!email) missing.push('email');
     if (!name)  missing.push('name');
-    if (!phone) missing.push('phone');
+    if (!phoneValid) missing.push('phone');
     if (missing.length) {
       missing.forEach(f => {
         const inp = body?.querySelector(`input[type="${f === 'phone' ? 'tel' : f === 'name' ? 'text' : f}"]${f === 'name' ? ':not([readonly])' : ''}`);
-        if (inp) { inp.style.outline = '2px solid var(--crimson)'; inp.focus(); }
+        if (!inp) return;
+        if (f === 'phone') {
+          showPhoneError(inp, phone ? `Enter a valid ${pd?.min ?? ''}-digit phone number` : 'Phone number is required');
+        } else {
+          inp.style.outline = '2px solid var(--crimson)';
+        }
+        inp.focus();
       });
       return;
     }
