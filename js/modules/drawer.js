@@ -571,7 +571,6 @@ function bindPayBtn() {
         showError('Could not connect to PayPal. Please try again.\n' + err.message);
       }
       return;
-      });
     }
   });
 }
