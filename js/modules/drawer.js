@@ -125,60 +125,67 @@ function renderCountryDropdown(activeCode, locked) {
     </div>`;
 }
 
-let _closeCcPanel = null; /* accessible to pickCountry */
+let _closeCcPanel = null;
+
+/* Body-level portal — created once, reused, escapes all transform contexts */
+function getCcPortal() {
+  let p = document.getElementById('ccPanelPortal');
+  if (!p) {
+    p = document.createElement('div');
+    p.id = 'ccPanelPortal';
+    p.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:visible;';
+    document.body.appendChild(p);
+  }
+  return p;
+}
 
 function bindCountryDropdown() {
   const dd = document.getElementById('ccDropdown');
   if (!dd) return;
 
-  let panel = dd.querySelector('.cc-panel');
-  let movedToBody = false;
+  const panel    = dd.querySelector('.cc-panel');
+  const portal   = getCcPortal();
 
-  function positionPanel() {
-    const trigger  = document.getElementById('ccTrigger');
-    if (!trigger || !panel) return;
-    const rect     = trigger.getBoundingClientRect();
-    const phoneRow = trigger.closest('.phone-row');
+  function openPanel(triggerEl) {
+    if (!panel) return;
+
+    /* Use the actual clicked element for accurate viewport rect */
+    const rect     = triggerEl.getBoundingClientRect();
+    const phoneRow = triggerEl.closest('.phone-row');
     const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
-    const panelW   = 280, panelH = 340;
+    const panelW = 280, panelH = 340;
 
-    /* Move panel to body to escape the drawer's transform stacking context */
-    if (!movedToBody) {
-      document.body.appendChild(panel);
-      movedToBody = true;
-    }
-    panel.style.position = 'fixed';
+    /* Move into portal (position:fixed context outside any transform) */
+    portal.appendChild(panel);
+    panel.style.pointerEvents = 'auto';
 
-    /* Right-align with the right edge of the phone row */
+    /* Right-align with phone row, open below trigger */
     let left = rowRect.right - panelW;
     let top  = rect.bottom + 6;
     if (left < 8) left = 8;
     if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
     if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
     if (top < 8) top = 8;
+
     panel.style.left = `${left}px`;
     panel.style.top  = `${top}px`;
-  }
 
-  function openPanel() {
-    positionPanel();
     dd.classList.add('open');
-    panel?.classList.add('cc-panel-open');
-    const s = document.getElementById('ccSearch');
+    panel.classList.add('cc-panel-open');
+
+    const s = panel.querySelector('input[type="text"]');
     if (s) { s.value = ''; filterCountries(''); s.focus(); }
   }
 
   function closePanel() {
     dd.classList.remove('open');
     panel?.classList.remove('cc-panel-open');
-    /* Move panel back to dd after CSS transition */
     setTimeout(() => {
-      if (panel && movedToBody && !dd.classList.contains('open')) {
-        dd.appendChild(panel);
-        movedToBody = false;
-        panel.style.position = '';
+      if (panel && portal.contains(panel)) {
+        panel.style.pointerEvents = '';
         panel.style.left = '';
         panel.style.top  = '';
+        dd.appendChild(panel);
       }
     }, 220);
   }
@@ -187,24 +194,22 @@ function bindCountryDropdown() {
 
   document.getElementById('ccTrigger')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    dd.classList.contains('open') ? closePanel() : openPanel();
+    dd.classList.contains('open') ? closePanel() : openPanel(e.currentTarget);
   });
 
-  document.getElementById('ccSearch')?.addEventListener('input', (e) => filterCountries(e.target.value));
-  document.getElementById('ccSearch')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closePanel();
-  });
-
-  document.getElementById('ccList')?.addEventListener('click', (e) => {
+  /* Bind search & list on the panel element (works even when moved to portal) */
+  panel?.querySelector('input[type="text"]')?.addEventListener('input', (e) => filterCountries(e.target.value));
+  panel?.querySelector('input[type="text"]')?.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+  panel?.querySelector('.cc-list')?.addEventListener('click', (e) => {
     const item = e.target.closest('.cc-item');
     if (!item) return;
     pickCountry(item.dataset.code, item.querySelector('.emoji').textContent, item.dataset.dial);
     closePanel();
   });
 
-  /* Close on outside click */
+  /* Close on any outside click */
   document.addEventListener('click', (e) => {
-    if (dd.classList.contains('open') && !dd.contains(e.target) && panel && !panel.contains(e.target)) {
+    if (dd.classList.contains('open') && !dd.contains(e.target) && !panel?.contains(e.target)) {
       closePanel();
     }
   });

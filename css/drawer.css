@@ -289,17 +289,16 @@
 .cc-dropdown.open .cc-trigger .chev { transform: rotate(180deg); }
 
 .cc-panel {
-  position: fixed; top: 0; left: 0; /* JS overrides top/left on open */
+  position: absolute; /* placed inside #ccPanelPortal via JS */
   width: 280px; background: #fff;
   border: 1px solid var(--line-2); border-radius: 14px;
-  box-shadow: var(--shadow-lift); z-index: 99999;
+  box-shadow: var(--shadow-lift);
   opacity: 0; pointer-events: none;
   transform: translateY(-6px);
   transition: opacity .2s ease, transform .2s ease;
   overflow: hidden;
 }
-.cc-dropdown.open .cc-panel { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.cc-panel.cc-panel-open  { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.cc-panel.cc-panel-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .cc-search { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
 .cc-search svg { color: var(--ink-3); flex-shrink: 0; }
