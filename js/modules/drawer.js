@@ -449,7 +449,7 @@ function bindPayBtn() {
     /* ── Collect form values ── */
     const body    = document.querySelector('.checkout-body');
     const email   = body?.querySelector('input[type="email"]')?.value.trim() ?? '';
-    const nameEl  = body?.querySelector('input[type="text"]');
+    const nameEl  = body?.querySelector('input[type="text"]:not([readonly])');
     const name    = nameEl?.value.trim() ?? '';
     const phone   = body?.querySelector('input[type="tel"]')?.value.trim() ?? '';
 
@@ -460,7 +460,7 @@ function bindPayBtn() {
     if (!phone) missing.push('phone');
     if (missing.length) {
       missing.forEach(f => {
-        const inp = body?.querySelector(`input[type="${f === 'phone' ? 'tel' : f === 'name' ? 'text' : f}"]`);
+        const inp = body?.querySelector(`input[type="${f === 'phone' ? 'tel' : f === 'name' ? 'text' : f}"]${f === 'name' ? ':not([readonly])' : ''}`);
         if (inp) { inp.style.outline = '2px solid var(--crimson)'; inp.focus(); }
       });
       return;
@@ -495,7 +495,7 @@ function bindPayBtn() {
               razorpay_order_id:    resp.razorpay_order_id,
               razorpay_signature:   resp.razorpay_signature,
               service_key:          currentDrawerKey,
-              amount:               s.inr.price,
+              amount:               amount,
               currency:             'INR',
               customer_name:        name,
               customer_email:       email,
