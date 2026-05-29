@@ -270,7 +270,7 @@
 .phone-row input { flex: 1; border-radius: 0 12px 12px 0 !important; }
 .phone-err { font-size: 12px; color: var(--crimson, #c53030); margin-top: 5px; line-height: 1.4; }
 
-.cc-dropdown { position: relative; }
+.cc-dropdown { position: static; }
 .cc-dropdown .cc-trigger {
   border: 1px solid var(--line-2); border-right: 0;
   border-radius: 12px 0 0 12px;
@@ -289,10 +289,10 @@
 .cc-dropdown.open .cc-trigger .chev { transform: rotate(180deg); }
 
 .cc-panel {
-  position: absolute; top: calc(100% + 6px); left: 0;
+  position: fixed; top: 0; left: 0; /* JS overrides top/left on open */
   width: 280px; background: #fff;
   border: 1px solid var(--line-2); border-radius: 14px;
-  box-shadow: var(--shadow-lift); z-index: 10;
+  box-shadow: var(--shadow-lift); z-index: 99999;
   opacity: 0; pointer-events: none;
   transform: translateY(-6px);
   transition: opacity .2s ease, transform .2s ease;

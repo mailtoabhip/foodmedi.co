@@ -131,6 +131,32 @@ function bindCountryDropdown() {
 
   document.getElementById('ccTrigger')?.addEventListener('click', (e) => {
     e.stopPropagation();
+    const wasOpen = dd.classList.contains('open');
+    const panel   = dd.querySelector('.cc-panel');
+
+    if (!wasOpen && panel) {
+      /* Position the panel using fixed coords so it never affects page layout */
+      const trigger  = document.getElementById('ccTrigger');
+      const rect     = trigger.getBoundingClientRect();
+      const phoneRow = trigger.closest('.phone-row');
+      const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
+      const panelW   = 280;
+      const panelH   = 340; /* approximate height */
+
+      /* Right-align with the phone row's right edge */
+      let left = rowRect.right - panelW;
+      let top  = rect.bottom + 6;
+
+      /* Keep inside viewport */
+      if (left < 8) left = 8;
+      if (left + panelW > window.innerWidth - 8) left = window.innerWidth - panelW - 8;
+      /* Open upward if not enough space below */
+      if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
+
+      panel.style.left = `${left}px`;
+      panel.style.top  = `${top}px`;
+    }
+
     dd.classList.toggle('open');
     if (dd.classList.contains('open')) {
       const s = document.getElementById('ccSearch');
