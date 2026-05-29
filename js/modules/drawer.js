@@ -235,8 +235,9 @@ function renderDrawer(key) {
       <span>${payBtnText}</span>
       <span class="sm">SECURE →</span>
     </button>` : `
-    <button class="pay-btn coming-soon-btn" disabled>
-      <span>We are coming soon for international health-goal setters!</span>
+    <button class="pay-btn paypal-pay-btn" id="payBtn" data-amount="${activeRawPrice}" data-paylabel="${s.payLabel || ''}">
+      <span>${s.payLabel ? `${s.payLabel} (Pay ${priceStr})` : `Pay ${priceStr} via PayPal`}</span>
+      <span class="sm">SECURE →</span>
     </button>`;
 
   const formFields = isOnc ? `
@@ -534,64 +535,42 @@ function bindPayBtn() {
       });
 
     } else {
-      /* USD → Razorpay international (card only) */
-      const amount   = s.usd.price;
+      /* USD → PayPal */
+      const amount   = parseFloat(btn.dataset.amount) || s.usd.price;
       const origText = btn.innerHTML;
 
       btn.disabled  = true;
-      btn.innerHTML = '<span>Opening secure checkout…</span>';
+      btn.innerHTML = '<span>Redirecting to PayPal…</span>';
 
-      /* Build full phone with dial code for international */
-      const dialCode   = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
-      const fullPhone  = dialCode ? `${dialCode} ${phone}` : phone;
+      const dialCode  = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
+      const fullPhone = dialCode ? `${dialCode} ${phone}` : phone;
 
-      await initiatePayment({
+      /* Store form data in sessionStorage so we can retrieve it after PayPal redirect */
+      sessionStorage.setItem('paypal_pending', JSON.stringify({
+        name, email, phone: fullPhone,
+        service_key: currentDrawerKey,
         amount,
         currency: 'USD',
+        calendlyUrl: s.calendlyUrl || '',
         serviceName: s.name,
-        name,
-        email,
-        phone: fullPhone,
+      }));
 
-        async onSuccess(resp) {
-          fetch('/api/send-confirmation', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_payment_id: resp.razorpay_payment_id,
-              razorpay_order_id:   resp.razorpay_order_id,
-              razorpay_signature:  resp.razorpay_signature,
-              service_key:         currentDrawerKey,
-              amount:              s.usd.price,
-              currency:            'USD',
-              customer_name:       name,
-              customer_email:      email,
-              customer_phone:      fullPhone,
-            }),
-          })
-          .then(async r => {
-            const d = await r.json().catch(() => ({}));
-            if (d.sent) console.log('[email] ✅ sent OK, count:', d.count);
-            else {
-              console.error('[email] ❌ failed:', JSON.stringify(d));
-              alert('⚠️ Payment succeeded but confirmation email failed.\nDetail: ' + (d.detail || d.error || JSON.stringify(d)));
-            }
-          })
-          .catch(err => console.error('[email] ❌ fetch error:', err));
-
-          showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
-        },
-
-        onDismiss() {
-          btn.disabled  = false;
-          btn.innerHTML = origText;
-        },
-
-        onError(msg) {
-          btn.disabled  = false;
-          btn.innerHTML = origText;
-          showError(msg);
-        },
+      try {
+        const res = await fetch('/api/create-paypal-order', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ amount, currency: 'USD' }),
+        });
+        const data = await res.json();
+        if (!data.approvalUrl) throw new Error(data.error || 'No PayPal approval URL received');
+        window.location.href = data.approvalUrl;
+      } catch (err) {
+        btn.disabled  = false;
+        btn.innerHTML = origText;
+        sessionStorage.removeItem('paypal_pending');
+        showError('Could not connect to PayPal. Please try again.\n' + err.message);
+      }
+      return;
       });
     }
   });
@@ -609,7 +588,7 @@ function openCalendly(url, name, email) {
   }
 }
 
-function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customerEmail) {
+export function showSuccess(serviceName, paymentId, calendlyUrl, customerName, customerEmail) {
   /* Remove any existing overlay */
   document.getElementById('paySuccessOverlay')?.remove();
 
