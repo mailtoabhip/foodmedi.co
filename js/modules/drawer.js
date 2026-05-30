@@ -135,24 +135,25 @@ function bindCountryDropdown() {
   const drawer = document.getElementById('drawer');
 
   function positionAndOpen(triggerEl) {
-    /* Move panel to the drawer root so it escapes overflow:hidden on .checkout.
-       The drawer is position:fixed — absolute children are positioned relative
-       to it. Using drawer-relative offsets avoids the html{zoom:0.82} mismatch
-       that breaks position:fixed + getBoundingClientRect coordinates. */
+    /* Move panel to drawer root to escape overflow:hidden on .checkout.
+       getBoundingClientRect returns VISUAL (zoomed) pixels, but
+       position:absolute inside the drawer uses LAYOUT pixels.
+       Dividing by the html zoom factor converts between them. */
     if (panel.parentElement !== drawer) drawer.appendChild(panel);
 
-    const dr  = drawer.getBoundingClientRect();
-    const tr  = triggerEl.getBoundingClientRect();
+    const zoom = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const dr   = drawer.getBoundingClientRect();
+    const tr   = triggerEl.getBoundingClientRect();
     const panelH = 340;
     const useW   = 280;
 
-    /* Offsets relative to drawer content, accounting for its scroll position */
-    const relBottom = tr.bottom - dr.top + drawer.scrollTop;
-    const relTop    = tr.top    - dr.top + drawer.scrollTop;
-    let   relLeft   = tr.left   - dr.left;
+    /* Convert visual offsets → layout coords, then add drawer scroll */
+    const relBottom = (tr.bottom - dr.top)  / zoom + drawer.scrollTop;
+    const relTop    = (tr.top    - dr.top)  / zoom + drawer.scrollTop;
+    let   relLeft   = (tr.left   - dr.left) / zoom;
 
-    /* Clamp horizontally within drawer */
-    if (relLeft + useW > dr.width - 8) relLeft = dr.width - useW - 8;
+    const drawerW = dr.width / zoom;
+    if (relLeft + useW > drawerW - 8) relLeft = drawerW - useW - 8;
     if (relLeft < 8) relLeft = 8;
 
     /* Open below; flip above if panel would exceed drawer's visible bottom */
