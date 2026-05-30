@@ -131,32 +131,38 @@ function bindCountryDropdown() {
   const dd = document.getElementById('ccDropdown');
   if (!dd) return;
 
-  const panel = dd.querySelector('.cc-panel');
+  const panel  = dd.querySelector('.cc-panel');
+  const drawer = document.getElementById('drawer');
 
   function positionAndOpen(triggerEl) {
-    /* Move panel to body to escape the drawer's stacking/containing context.
-       The drawer has `transform: none` which Chrome treats as a containing block
-       for position:fixed children, making viewport coords wrong. */
-    if (panel.parentElement !== document.body) {
-      document.body.appendChild(panel);
-    }
+    /* Move panel to the drawer root so it escapes overflow:hidden on .checkout.
+       The drawer is position:fixed — absolute children are positioned relative
+       to it. Using drawer-relative offsets avoids the html{zoom:0.82} mismatch
+       that breaks position:fixed + getBoundingClientRect coordinates. */
+    if (panel.parentElement !== drawer) drawer.appendChild(panel);
 
-    const rect   = triggerEl.getBoundingClientRect();
+    const dr  = drawer.getBoundingClientRect();
+    const tr  = triggerEl.getBoundingClientRect();
     const panelH = 340;
     const useW   = 280;
 
+    /* Offsets relative to drawer content, accounting for its scroll position */
+    const relBottom = tr.bottom - dr.top + drawer.scrollTop;
+    const relTop    = tr.top    - dr.top + drawer.scrollTop;
+    let   relLeft   = tr.left   - dr.left;
+
+    /* Clamp horizontally within drawer */
+    if (relLeft + useW > dr.width - 8) relLeft = dr.width - useW - 8;
+    if (relLeft < 8) relLeft = 8;
+
+    /* Open below; flip above if panel would exceed drawer's visible bottom */
+    const top = (tr.bottom + panelH + 6 > dr.bottom)
+      ? relTop - panelH - 6
+      : relBottom + 6;
+
     panel.style.width = `${useW}px`;
-
-    let left = rect.left;
-    let top  = rect.bottom + 6;
-
-    if (left + useW > window.innerWidth - 8) left = window.innerWidth - useW - 8;
-    if (left < 8) left = 8;
-    if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
-    if (top < 8) top = 8;
-
-    panel.style.left = `${left}px`;
-    panel.style.top  = `${top}px`;
+    panel.style.left  = `${relLeft}px`;
+    panel.style.top   = `${top}px`;
 
     panel.classList.add('is-open');
     dd.classList.add('open');
@@ -167,10 +173,8 @@ function bindCountryDropdown() {
   function closeDropdown() {
     panel.classList.remove('is-open');
     dd.classList.remove('open');
-    /* Move panel back into dd so it gets cleaned up when drawer re-renders */
-    if (panel.parentElement === document.body) {
-      dd.appendChild(panel);
-    }
+    /* Move panel back into dd so re-renders clean it up properly */
+    if (panel.parentElement === drawer) dd.appendChild(panel);
     panel.style.width = '';
     panel.style.left  = '';
     panel.style.top   = '';
