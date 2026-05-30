@@ -388,13 +388,9 @@ function renderDrawer(key) {
     ? `${s.payLabel} (Pay ${priceStr})`
     : `Pay ${priceStr} via ${gw}`;
 
-  const payBtnHtml = isINR ? `
+  const payBtnHtml = `
     <button class="pay-btn" id="payBtn" data-price="${priceStr}" data-gw="${gw}" data-amount="${activeRawPrice}" data-paylabel="${s.payLabel || ''}">
       <span>${payBtnText}</span>
-      <span class="sm">SECURE →</span>
-    </button>` : `
-    <button class="pay-btn paypal-pay-btn" id="payBtn" data-amount="${activeRawPrice}" data-paylabel="${s.payLabel || ''}">
-      <span>${s.payLabel ? `${s.payLabel} (Pay ${priceStr})` : `Pay ${priceStr} via PayPal`}</span>
       <span class="sm">SECURE →</span>
     </button>`;
 
@@ -640,130 +636,63 @@ function bindPayBtn() {
     /* ── Clear any previous validation errors ── */
     body?.querySelectorAll('input').forEach(i => i.style.outline = '');
 
-    /* ── INR → Razorpay ── */
-    if (cur === 'INR') {
-      const amount = parseInt(btn.dataset.amount, 10) || s.inr.price;
-      const origText = btn.innerHTML;
+    /* ── All currencies → Razorpay (handles INR + international incl. PayPal) ── */
+    const isINR   = cur === 'INR';
+    const amount  = isINR
+      ? (parseInt(btn.dataset.amount, 10) || s.inr.price)
+      : (parseFloat(btn.dataset.amount)   || s.usd.price);
+    const origText = btn.innerHTML;
 
-      btn.disabled = true;
-      btn.innerHTML = '<span>Opening secure checkout…</span>';
+    const dialCode  = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
+    const fullPhone = isINR ? phone : (dialCode ? `${dialCode} ${phone}` : phone);
 
-      await initiatePayment({
-        amount,
-        currency: 'INR',
-        serviceName: s.name,
-        name,
-        email,
-        phone,
+    btn.disabled  = true;
+    btn.innerHTML = '<span>Opening secure checkout…</span>';
 
-        async onSuccess(resp) {
-          /* Fire-and-forget confirmation email, don't block the UI */
-          fetch('/api/send-confirmation', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_payment_id:  resp.razorpay_payment_id,
-              razorpay_order_id:    resp.razorpay_order_id,
-              razorpay_signature:   resp.razorpay_signature,
-              service_key:          currentDrawerKey,
-              amount:               amount,
-              currency:             'INR',
-              customer_name:        name,
-              customer_email:       email,
-              customer_phone:       phone,
-            }),
-          })
-          .then(async r => {
-            const d = await r.json().catch(() => ({}));
-            if (d.sent) {
-              console.log('[email] ✅ sent OK, count:', d.count);
-            } else {
-              console.error('[email] ❌ failed:', JSON.stringify(d));
-              /* show visible alert on screen so it's never missed */
-              alert('⚠️ Payment succeeded but confirmation email failed.\nDetail: ' + (d.detail || d.error || JSON.stringify(d)) + '\n\nPlease check Vercel function logs.');
-            }
-          })
-          .catch(err => {
-            console.error('[email] ❌ fetch error:', err);
-            alert('⚠️ Payment succeeded but could not reach the email API.\nError: ' + err.message);
-          });
+    await initiatePayment({
+      amount,
+      currency: cur,
+      serviceName: s.name,
+      name,
+      email,
+      phone: fullPhone,
 
-          showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
-        },
-
-        onDismiss() {
-          /* User closed the modal, restore button */
-          btn.disabled = false;
-          btn.innerHTML = origText;
-        },
-
-        onError(msg) {
-          btn.disabled = false;
-          btn.innerHTML = origText;
-          showError(msg);
-        },
-      });
-
-    } else {
-      /* USD → PayPal popup */
-      const amount   = parseFloat(btn.dataset.amount) || s.usd.price;
-      const origText = btn.innerHTML;
-
-      btn.disabled  = true;
-      btn.innerHTML = '<span>Opening PayPal…</span>';
-
-      const dialCode  = document.getElementById('ccActiveDial')?.textContent?.trim() || '';
-      const fullPhone = dialCode ? `${dialCode} ${phone}` : phone;
-
-      const pending = {
-        name, email, phone: fullPhone,
-        service_key: currentDrawerKey,
-        amount, currency: 'USD',
-        calendlyUrl: s.calendlyUrl || '',
-        serviceName: s.name,
-      };
-      localStorage.setItem('paypal_pending', JSON.stringify(pending));
-
-      /* Open blank popup SYNCHRONOUSLY (before any await) so browser allows it */
-      const pw = 560, ph = 720;
-      const pl = Math.round((screen.width  - pw) / 2);
-      const pt = Math.round((screen.height - ph) / 2);
-      const popup = window.open(
-        'about:blank',
-        'paypal_checkout',
-        `width=${pw},height=${ph},top=${pt},left=${pl},toolbar=no,menubar=no,scrollbars=yes`
-      );
-
-      try {
-        const res = await fetch('/api/create-paypal-order', {
+      async onSuccess(resp) {
+        fetch('/api/send-confirmation', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ amount, currency: 'USD' }),
-        });
-        const data = await res.json();
-        if (!data.approvalUrl) throw new Error(data.error || 'No PayPal approval URL received');
+          body: JSON.stringify({
+            razorpay_payment_id: resp.razorpay_payment_id,
+            razorpay_order_id:   resp.razorpay_order_id,
+            razorpay_signature:  resp.razorpay_signature,
+            service_key:         currentDrawerKey,
+            amount,
+            currency:            cur,
+            customer_name:       name,
+            customer_email:      email,
+            customer_phone:      fullPhone,
+          }),
+        })
+        .then(async r => {
+          const d = await r.json().catch(() => ({}));
+          if (!d.sent) console.error('[email] ❌ failed:', JSON.stringify(d));
+        })
+        .catch(err => console.error('[email] ❌ fetch error:', err));
 
+        showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
+      },
+
+      onDismiss() {
         btn.disabled  = false;
         btn.innerHTML = origText;
+      },
 
-        if (!popup || popup.closed) {
-          /* Popup was blocked — fall back to full redirect */
-          window.location.href = data.approvalUrl;
-          return;
-        }
-
-        /* Navigate the already-open popup to PayPal */
-        popup.location.href = data.approvalUrl;
-        showPayPalWaiting(pending, popup);
-      } catch (err) {
-        popup?.close();
+      onError(msg) {
         btn.disabled  = false;
         btn.innerHTML = origText;
-        localStorage.removeItem('paypal_pending');
-        showError('Could not connect to PayPal. Please try again.\n' + err.message);
-      }
-      return;
-    }
+        showError(msg);
+      },
+    });
   });
 }
 
