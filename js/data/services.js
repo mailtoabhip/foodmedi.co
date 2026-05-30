@@ -38,7 +38,7 @@
     icon: "refresh",
     titleHtml: 'Follow-up Session<br/>with <em style="color:var(--emerald-deep)">Gauri Pillai.</em>',
     lede: "Progress reviews and plan adjustments, because real change happens between sessions, not in any single one.",
-    inr: { price: 1,    meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
+    inr: { price: 2000, meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     usd: { price: 35,   meta: "per session", lbl: "Progress review, plan adjustments, symptom management & next-phase guidance." },
     pill: "For existing clients",
     calendlyUrl: "https://calendly.com/foodmedico/schedule-a-meeting",
