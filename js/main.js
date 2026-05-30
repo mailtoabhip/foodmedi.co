@@ -42,17 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.close(); /* works if this tab was opened by window.open() */
 
     /* Safety fallback: if window.close() didn't work (e.g. direct navigation),
-       handle capture right here in this tab */
+       handle capture right here in this tab.
+       BUT only if paypal_result is still in localStorage — if the original tab
+       already consumed it via the storage event, skip to avoid double-capture. */
     setTimeout(() => {
-      if (!document.hidden) {
-        initAll();
-        if (paypalStatus === 'success' && token && stored.service_key) {
-          handlePayPalCapture(token, stored);
-        } else if (stored.service_key) {
-          openDrawer(stored.service_key);
-        }
+      const resultStillUnclaimed = !!localStorage.getItem('paypal_result');
+      if (!resultStillUnclaimed) return; /* original tab already handled it */
+      localStorage.removeItem('paypal_result');
+      initAll();
+      if (paypalStatus === 'success' && token && stored.service_key) {
+        handlePayPalCapture(token, stored);
+      } else if (stored.service_key) {
+        openDrawer(stored.service_key);
       }
-    }, 400);
+    }, 800);
   }
 
   initAll();
