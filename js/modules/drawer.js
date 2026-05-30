@@ -198,9 +198,9 @@ function bindCountryDropdown() {
     closeDropdown();
   });
 
-  /* Close on any outside click */
+  /* Close on any click outside both the trigger and the panel */
   document.addEventListener('click', (e) => {
-    if (dd.classList.contains('open') && !dd.contains(e.target)) closeDropdown();
+    if (dd.classList.contains('open') && !dd.contains(e.target) && !panel.contains(e.target)) closeDropdown();
   });
 }
 
@@ -998,9 +998,5 @@ export function initDrawer() {
   document.getElementById('drawerCloseBtn')?.addEventListener('click', closeDrawer);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
-  // Close country dropdown on outside click
-  document.addEventListener('click', (e) => {
-    const dd = document.getElementById('ccDropdown');
-    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
-  });
+  // Country dropdown outside-click is handled inside bindCountryDropdown
 }
