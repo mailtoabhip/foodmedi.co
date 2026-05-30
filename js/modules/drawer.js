@@ -134,34 +134,43 @@ function bindCountryDropdown() {
   const panel = dd.querySelector('.cc-panel');
 
   function positionAndOpen(triggerEl) {
+    /* Move panel to body to escape the drawer's stacking/containing context.
+       The drawer has `transform: none` which Chrome treats as a containing block
+       for position:fixed children, making viewport coords wrong. */
+    if (panel.parentElement !== document.body) {
+      document.body.appendChild(panel);
+    }
+
     const rect   = triggerEl.getBoundingClientRect();
     const panelH = 340;
     const useW   = 280;
 
     panel.style.width = `${useW}px`;
 
-    /* Open below the trigger button, left-aligned to it */
     let left = rect.left;
     let top  = rect.bottom + 6;
 
-    /* Clamp so panel stays on screen horizontally */
     if (left + useW > window.innerWidth - 8) left = window.innerWidth - useW - 8;
     if (left < 8) left = 8;
-
-    /* If not enough room below, open above */
     if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
     if (top < 8) top = 8;
 
     panel.style.left = `${left}px`;
     panel.style.top  = `${top}px`;
 
+    panel.classList.add('is-open');
     dd.classList.add('open');
     const s = document.getElementById('ccSearch');
     if (s) { s.value = ''; filterCountries(''); s.focus(); }
   }
 
   function closeDropdown() {
+    panel.classList.remove('is-open');
     dd.classList.remove('open');
+    /* Move panel back into dd so it gets cleaned up when drawer re-renders */
+    if (panel.parentElement === document.body) {
+      dd.appendChild(panel);
+    }
     panel.style.width = '';
     panel.style.left  = '';
     panel.style.top   = '';
