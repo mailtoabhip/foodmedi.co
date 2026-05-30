@@ -44,8 +44,6 @@ export async function initiatePayment({
 
     const { order_id, key_id } = await res.json();
 
-    const isInternational = currency !== 'INR';
-
     const rzp = new window.Razorpay({
       key:         key_id,
       amount:      Math.round(Number(amount) * 100),
@@ -56,23 +54,6 @@ export async function initiatePayment({
       image:       '/assets/logo.png',
       prefill:     { name, email, contact: phone },
       theme:       { color: '#137A48' },
-
-      /* For international orders: show PayPal prominently alongside cards */
-      ...(isInternational && {
-        config: {
-          display: {
-            blocks: {
-              paypal: {
-                name: 'Pay using PayPal',
-                instruments: [{ method: 'paypal' }],
-              },
-            },
-            sequence: ['block.paypal', 'block.default'],
-            preferences: { show_default_blocks: true },
-          },
-        },
-      }),
-
       handler(response) {
         onSuccess?.(response);
       },
