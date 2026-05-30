@@ -14,35 +14,45 @@ document.addEventListener('DOMContentLoaded', () => {
   if (paypalStatus === 'success' || paypalStatus === 'cancel') {
     window.history.replaceState({}, '', window.location.pathname);
 
+    const token  = params.get('token');
+    const stored = JSON.parse(localStorage.getItem('paypal_pending') || '{}');
+
     if (window.opener && !window.opener.closed) {
-      /* We are inside the PayPal popup — notify parent and close */
+      /* Desktop popup path — notify parent tab and close this popup */
       try {
         window.opener.postMessage(
           paypalStatus === 'success'
-            ? { type: 'PAYPAL_SUCCESS', token: params.get('token') }
+            ? { type: 'PAYPAL_SUCCESS', token }
             : { type: 'PAYPAL_CANCEL' },
           window.location.origin
         );
       } catch (_) {}
       window.close();
-      return; /* Stop — don't init the full page in the popup */
-    }
-
-    /* Fallback: popup was blocked, user landed here via full redirect */
-    const stored = JSON.parse(sessionStorage.getItem('paypal_pending') || '{}');
-    if (paypalStatus === 'success') {
-      const token = params.get('token');
-      if (token && stored.service_key) {
-        initAll();
-        handlePayPalCapture(token, stored);
-        return;
-      }
-    } else {
-      sessionStorage.removeItem('paypal_pending');
-      initAll();
-      if (stored.service_key) openDrawer(stored.service_key);
       return;
     }
+
+    /* Mobile / new-tab path — window.opener is null.
+       Write result to localStorage so the original tab picks it up
+       via a 'storage' event, then close this tab. */
+    if (paypalStatus === 'success' && token) {
+      localStorage.setItem('paypal_result', JSON.stringify({ status: 'success', token }));
+    } else {
+      localStorage.setItem('paypal_result', JSON.stringify({ status: 'cancel' }));
+    }
+    window.close(); /* works if this tab was opened by window.open() */
+
+    /* Safety fallback: if window.close() didn't work (e.g. direct navigation),
+       handle capture right here in this tab */
+    setTimeout(() => {
+      if (!document.hidden) {
+        initAll();
+        if (paypalStatus === 'success' && token && stored.service_key) {
+          handlePayPalCapture(token, stored);
+        } else if (stored.service_key) {
+          openDrawer(stored.service_key);
+        }
+      }
+    }, 400);
   }
 
   initAll();

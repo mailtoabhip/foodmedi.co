@@ -722,7 +722,7 @@ function bindPayBtn() {
         calendlyUrl: s.calendlyUrl || '',
         serviceName: s.name,
       };
-      sessionStorage.setItem('paypal_pending', JSON.stringify(pending));
+      localStorage.setItem('paypal_pending', JSON.stringify(pending));
 
       /* Open blank popup SYNCHRONOUSLY (before any await) so browser allows it */
       const pw = 560, ph = 720;
@@ -759,7 +759,7 @@ function bindPayBtn() {
         popup?.close();
         btn.disabled  = false;
         btn.innerHTML = origText;
-        sessionStorage.removeItem('paypal_pending');
+        localStorage.removeItem('paypal_pending');
         showError('Could not connect to PayPal. Please try again.\n' + err.message);
       }
       return;
@@ -784,22 +784,51 @@ function showPayPalWaiting(stored, popup) {
     </div>`;
   document.body.appendChild(overlay);
 
-  function onMessage(e) {
-    if (e.data?.type === 'PAYPAL_SUCCESS') {
-      cleanup(); overlay.remove();
-      handlePayPalCapture(e.data.token, stored);
-    } else if (e.data?.type === 'PAYPAL_CANCEL') {
-      cleanup(); overlay.remove();
-      showPayPalFailed(stored);
-    }
+  let handled = false;
+
+  function finish(success, token) {
+    if (handled) return;
+    handled = true;
+    cleanup();
+    overlay.remove();
+    localStorage.removeItem('paypal_result');
+    if (success) handlePayPalCapture(token, stored);
+    else showPayPalFailed(stored);
   }
 
+  /* Desktop popup: same-origin postMessage */
+  function onMessage(e) {
+    if (e.data?.type === 'PAYPAL_SUCCESS') finish(true,  e.data.token);
+    else if (e.data?.type === 'PAYPAL_CANCEL') finish(false, null);
+  }
+
+  /* Mobile / new-tab: the return page writes to localStorage,
+     which fires a 'storage' event in THIS (original) tab */
+  function onStorage(e) {
+    if (e.key !== 'paypal_result') return;
+    const result = JSON.parse(e.newValue || 'null');
+    if (!result) return;
+    finish(result.status === 'success', result.token);
+  }
+
+  /* Poll for popup close — wait 600 ms after close before giving up,
+     to let any in-flight storage event arrive first */
   const poll = setInterval(() => {
-    if (popup.closed) { cleanup(); overlay.remove(); showPayPalFailed(stored); }
+    if (popup && popup.closed) {
+      clearInterval(poll);
+      setTimeout(() => finish(false, null), 600);
+    }
   }, 800);
 
-  function cleanup() { clearInterval(poll); window.removeEventListener('message', onMessage); }
+  function cleanup() {
+    clearInterval(poll);
+    window.removeEventListener('message',  onMessage);
+    window.removeEventListener('storage',  onStorage);
+    localStorage.removeItem('paypal_pending');
+  }
+
   window.addEventListener('message', onMessage);
+  window.addEventListener('storage', onStorage);
 }
 
 export function showPayPalFailed(stored) {
@@ -827,7 +856,7 @@ export function showPayPalFailed(stored) {
 
   document.getElementById('paypalTryAgain')?.addEventListener('click', () => {
     overlay.remove();
-    sessionStorage.removeItem('paypal_pending');
+    localStorage.removeItem('paypal_pending');
     if (stored?.service_key) openDrawer(stored.service_key);
   });
 }
@@ -860,7 +889,7 @@ export async function handlePayPalCapture(orderID, stored) {
       }),
     }).catch(err => console.error('[paypal email]', err));
 
-    sessionStorage.removeItem('paypal_pending');
+    localStorage.removeItem('paypal_pending');
     showSuccess(stored.serviceName, paymentId, stored.calendlyUrl, stored.name, stored.email);
   } catch (err) {
     console.error('[paypal capture]', err);
