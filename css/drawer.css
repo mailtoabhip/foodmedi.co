@@ -289,7 +289,7 @@
 .cc-dropdown.open .cc-trigger .chev { transform: rotate(180deg); }
 
 .cc-panel {
-  position: fixed; /* viewport-relative now that .drawer.open has transform:none */
+  position: fixed; /* lives at body level — no transform ancestor */
   width: 280px; background: #fff;
   border: 1px solid var(--line-2); border-radius: 14px;
   box-shadow: var(--shadow-lift); z-index: 9999;
@@ -298,6 +298,7 @@
   transition: opacity .2s ease, transform .2s ease;
   overflow: hidden;
 }
+.cc-panel.is-open,
 .cc-dropdown.open .cc-panel { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .cc-search { padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }

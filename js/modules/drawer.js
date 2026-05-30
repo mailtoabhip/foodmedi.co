@@ -134,20 +134,22 @@ function bindCountryDropdown() {
   const panel = dd.querySelector('.cc-panel');
 
   function positionAndOpen(triggerEl) {
-    const rect     = triggerEl.getBoundingClientRect();
-    const phoneRow = triggerEl.closest('.phone-row');
-    const rowRect  = phoneRow ? phoneRow.getBoundingClientRect() : rect;
-    const panelH   = 340;
-    const useW     = Math.max(rowRect.width || 280, 240);
+    const rect   = triggerEl.getBoundingClientRect();
+    const panelH = 340;
+    const useW   = 280;
 
     panel.style.width = `${useW}px`;
 
-    /* Open below the phone row, right-aligned */
-    let left = rowRect.right - useW;
-    let top  = rowRect.bottom + 4;
-    if (left < 8) left = 8;
+    /* Open below the trigger button, left-aligned to it */
+    let left = rect.left;
+    let top  = rect.bottom + 6;
+
+    /* Clamp so panel stays on screen horizontally */
     if (left + useW > window.innerWidth - 8) left = window.innerWidth - useW - 8;
-    if (top + panelH > window.innerHeight - 8) top = rowRect.top - panelH - 4;
+    if (left < 8) left = 8;
+
+    /* If not enough room below, open above */
+    if (top + panelH > window.innerHeight - 8) top = rect.top - panelH - 6;
     if (top < 8) top = 8;
 
     panel.style.left = `${left}px`;
@@ -429,6 +431,9 @@ function renderDrawer(key) {
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Wallet</div>`
     : `<div class="pm active" role="radio" aria-checked="true"><span class="dot-r"></span> International Card</div>
        <div class="pm" role="radio" aria-checked="false"><span class="dot-r"></span> Visa / Mastercard / Amex</div>`;
+
+  /* Remove any previous body-level cc-panel before re-render */
+  document.getElementById('ccGlobalPanel')?.remove();
 
   document.getElementById('drawerBody').innerHTML = `
     <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;">
