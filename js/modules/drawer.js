@@ -394,7 +394,7 @@ function renderDrawer(key) {
       <span class="sm">SECURE →</span>
     </button>` : `
     <button class="pay-btn" id="payBtn" data-amount="${activeRawPrice}" data-paylabel="${s.payLabel || ''}">
-      <span>${s.payLabel ? `${s.payLabel} (Pay ${priceStr})` : `Pay ${priceStr} via PayPal`}</span>
+      <span>${s.payLabel ? `${s.payLabel} (Pay ${priceStr})` : `Pay ${priceStr} via Razorpay`}</span>
       <span class="sm">SECURE →</span>
     </button>`;
 
@@ -683,49 +683,41 @@ function bindPayBtn() {
       });
 
     } else {
-      /* ── USD → PayPal directly ── */
+      /* ── USD → Razorpay (with PayPal shown as first option) ── */
       const amount = parseFloat(btn.dataset.amount) || s.usd.price;
 
       btn.disabled  = true;
-      btn.innerHTML = '<span>Opening PayPal…</span>';
+      btn.innerHTML = '<span>Opening secure checkout…</span>';
 
-      const pending = {
-        name, email, phone: fullPhone,
-        service_key: currentDrawerKey,
-        amount, currency: 'USD',
-        calendlyUrl: s.calendlyUrl || '',
+      await initiatePayment({
+        amount,
+        currency: 'USD',
         serviceName: s.name,
-      };
-      localStorage.setItem('paypal_pending', JSON.stringify(pending));
+        name, email, phone: fullPhone,
 
-      const pw = 560, ph = 720;
-      const popup = window.open(
-        'about:blank', 'paypal_checkout',
-        `width=${pw},height=${ph},top=${Math.round((screen.height-ph)/2)},left=${Math.round((screen.width-pw)/2)},toolbar=no,menubar=no,scrollbars=yes`
-      );
+        async onSuccess(resp) {
+          fetch('/api/send-confirmation', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_order_id:   resp.razorpay_order_id,
+              razorpay_signature:  resp.razorpay_signature,
+              service_key:         currentDrawerKey,
+              amount, currency: 'USD',
+              customer_name:  name,
+              customer_email: email,
+              customer_phone: fullPhone,
+            }),
+          })
+          .then(async r => { const d = await r.json().catch(() => ({})); if (!d.sent) console.error('[email] ❌', d); })
+          .catch(err => console.error('[email] ❌', err));
 
-      try {
-        const res  = await fetch('/api/create-paypal-order', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount, currency: 'USD' }),
-        });
-        const data = await res.json();
-        if (!data.approvalUrl) throw new Error(data.error || 'No PayPal approval URL received');
-
-        btn.disabled  = false;
-        btn.innerHTML = origText;
-
-        if (!popup || popup.closed) { window.location.href = data.approvalUrl; return; }
-
-        popup.location.href = data.approvalUrl;
-        showPayPalWaiting(pending, popup);
-      } catch (err) {
-        popup?.close();
-        btn.disabled  = false;
-        btn.innerHTML = origText;
-        localStorage.removeItem('paypal_pending');
-        showError('Could not connect to PayPal. Please try again.\n' + err.message);
-      }
+          showSuccess(s.name, resp.razorpay_payment_id, s.calendlyUrl || '', name, email);
+        },
+        onDismiss() { btn.disabled = false; btn.innerHTML = origText; },
+        onError(msg) { btn.disabled = false; btn.innerHTML = origText; showError(msg); },
+      });
     }
   });
 }
